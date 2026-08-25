@@ -67,7 +67,10 @@ jobs:
       - name: README install command check (Rule 154)
         shell: bash
         run: |
-          uv run ommw --help | head -5
+          set +e +o pipefail
+          uv run ommw --help > /tmp/ommw_help.txt
+          head -5 /tmp/ommw_help.txt
+          grep -q "Open Mathematical Modeling Workflow" /tmp/ommw_help.txt
 
   secret-scan:
     name: secret & abs-path scan
