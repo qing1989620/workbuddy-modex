@@ -1,0 +1,44 @@
+% OMMW generic LaTeX template. CJK-safe via xeCJK + xelatex.
+% Competition profiles under templates/competition/<profile>/ may override.
+% This template compiles out-of-the-box with placeholders; replace content as
+% the workflow accepts each chapter (no-prose-before-evidence).
+\documentclass[12pt,a4paper]{article}
+
+\usepackage{xeCJK}
+\setCJKmainfont{SimSun}[AutoFakeBold=true]
+\setCJKsansfont{SimHei}
+\setCJKmonofont{FangSong}
+
+\usepackage[a4paper,top=2.5cm,bottom=2.5cm,left=2.5cm,right=2.5cm]{geometry}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{caption}
+\usepackage{hyperref}
+\hypersetup{colorlinks=true,linkcolor=black,citecolor=black,urlcolor=blue}
+
+\title{OMMW Paper Title}
+\author{OMMW}
+\date{\today}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+% Abstract is placeholder until experiments complete. Final abstract is generated
+% from Verified Results only (Rule 78). Every number in it -> Result ID (Rule 79).
+\end{abstract}
+
+\tableofcontents
+
+\input{sections/introduction}
+\input{sections/problem-restatement}
+\input{sections/assumptions}
+\input{sections/notation}
+\input{sections/models}
+\input{sections/experiments}
+\input{sections/results}
+\input{sections/robustness}
+\input{sections/conclusions}
+
+\end{document}

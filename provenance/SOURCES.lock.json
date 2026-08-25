@@ -1,0 +1,54 @@
+{
+  "version": 1,
+  "updated": "2026-08-25",
+  "entries": [
+    {
+      "id": "mathmodelagent",
+      "kind": "external-provider",
+      "trust": "EXTERNAL_OPTIONAL",
+      "upstream": "https://github.com/jihe520/MathModelAgent",
+      "license": "personal-noncommercial",
+      "license_note": "个人免费使用，请勿商业用途，商业用途联系我（作者）",
+      "vendored": false,
+      "local_path": null,
+      "enabled_by_default": false,
+      "audit": "provenance/audits/mathmodelagent.md",
+      "note": "Adapter only. No upstream source redistributed. OMMW core works without it."
+    },
+    {
+      "id": "scientific-skills",
+      "kind": "fetch-on-demand-provider",
+      "trust": "AUDITED_VENDOR",
+      "upstream": "https://github.com/K-Dense-AI/scientific-agent-skills",
+      "upstream_license": "MIT",
+      "commit": "36d8f13",
+      "per_skill_license_varies": true,
+      "vendored": false,
+      "skills_audited": [
+        "scientific-writing", "scientific-critical-thinking", "literature-review",
+        "citation-management", "exploratory-data-analysis", "statistical-analysis",
+        "experimental-design", "peer-review", "sympy", "uncertainty-and-units",
+        "statsmodels", "scikit-learn", "networkx"
+      ],
+      "note": "Fetch individual skills at pinned commit; record per-skill license. No bulk vendor."
+    },
+    {
+      "id": "latex-document-skill",
+      "kind": "research-reference",
+      "trust": "AUDITED_VENDOR",
+      "upstream": "https://github.com/ndpvt-web/latex-document-skill",
+      "upstream_license": "MIT",
+      "vendored": false,
+      "note": "Design reference for compile/citation-audit/CJK/visual-QA. May vendor on request after pinning commit."
+    },
+    {
+      "id": "latex-arxiv-SKILL",
+      "kind": "research-reference",
+      "trust": "AUDITED_VENDOR",
+      "upstream": "https://github.com/appautomaton/latex-arxiv-SKILL",
+      "upstream_license": "MIT",
+      "vendored": false,
+      "note": "arXiv/IEEEtran-specific. Discipline borrowed (issue-driven, no-prose-before-evidence, compile-or-not-done) and re-implemented for competition modeling. Not reused."
+    }
+  ]
+}

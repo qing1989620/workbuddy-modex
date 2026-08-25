@@ -1,0 +1,22 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://ommw.dev/schemas/source.schema.json",
+  "title": "OMMW source ledger entry",
+  "type": "object",
+  "required": ["source_id", "title", "verification"],
+  "properties": {
+    "source_id": {"type": "string", "pattern": "^S-\\d{3,4}$"},
+    "title": {"type": "string"},
+    "authors": {"type": "array", "items": {"type": "string"}},
+    "year": {"type": ["integer", "null"]},
+    "venue": {"type": "string"},
+    "doi": {"type": "string"},
+    "url": {"type": "string"},
+    "retrieved_at": {"type": "string"},
+    "metadata_verified": {"type": "boolean"},
+    "content_verified": {"type": "boolean"},
+    "verification": {"enum": ["UNVERIFIED", "METADATA_VERIFIED", "CLAIM_VERIFIED", "UNVERIFIED_OFFLINE"]},
+    "claims_supported": {"type": "array", "items": {"type": "string"}},
+    "cache_path": {"type": "string"}
+  }
+}

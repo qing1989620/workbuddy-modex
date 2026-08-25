@@ -1,0 +1,22 @@
+cff-version: 1.2.0
+title: "Open Mathematical Modeling Workflow (OMMW)"
+message: "If you use OMMW in your work, please cite it as below."
+type: software
+authors:
+  - alias: "OMMW Contributors"
+repository-code: "https://github.com/OMMW/ommw"
+license: MIT
+version: "0.1.0"
+date-released: "2026-08-25"
+keywords:
+  - mathematical-modeling
+  - latex
+  - word
+  - reproducible-research
+  - agent-skills
+  - anti-hallucination
+preferred-citation:
+  type: software
+  title: "Open Mathematical Modeling Workflow (OMMW)"
+  version: "0.1.0"
+  year: 2026

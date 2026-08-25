@@ -1,0 +1,21 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://ommw.dev/schemas/result.schema.json",
+  "title": "OMMW result ledger entry",
+  "type": "object",
+  "required": ["result_id", "name", "value"],
+  "properties": {
+    "result_id": {"type": "string", "pattern": "^R-\\d{3,4}$"},
+    "name": {"type": "string"},
+    "value": {"type": "string"},
+    "unit": {"type": "string"},
+    "precision": {"type": "string"},
+    "source_script": {"type": "string"},
+    "source_data_hash": {"type": "string"},
+    "parameters": {"type": "object"},
+    "seed": {"type": ["integer", "null"]},
+    "run_id": {"type": "string"},
+    "created_at": {"type": "string"},
+    "verified": {"type": "boolean"}
+  }
+}

@@ -1,0 +1,45 @@
+# --- Secrets & local config (NEVER commit) ---
+.env
+.env.local
+config.local.toml
+*.key
+*.pem
+secrets/
+
+# --- Python ---
+__pycache__/
+*.py[cod]
+*.egg-info/
+.eggs/
+build/
+dist/printer/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+.venv/
+.venv2/
+venv/
+
+# --- OMMW runtime build artifacts ---
+.build/
+.cache/
+ommw.egg-info/
+
+# --- Local dev scratch (regenerable) ---
+_smoke/
+_demo/
+workspace/
+projects/
+workspace-*/
+
+# --- Editor / OS ---
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+
+# --- Keep publishable templates & reference.docx ---
+!templates/**
+!templates/word/reference.docx

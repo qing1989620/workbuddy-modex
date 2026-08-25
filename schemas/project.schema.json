@@ -1,0 +1,20 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://ommw.dev/schemas/project.schema.json",
+  "title": "OMMW project.yaml",
+  "type": "object",
+  "required": ["schema_version", "workflow_version", "output_mode"],
+  "properties": {
+    "title": {"type": "string"},
+    "competition": {"type": "string"},
+    "output_mode": {"enum": ["latex", "word", "dual"]},
+    "rigor": {"enum": ["quick", "strict", "competition", "research"]},
+    "schema_version": {"type": "integer", "minimum": 1},
+    "workflow_version": {"type": "string"},
+    "created_at": {"type": "string"},
+    "language": {"enum": ["zh", "en", "bilingual"]},
+    "time_budget_minutes": {"type": ["integer", "null"]},
+    "problem_statement": {"type": "string"},
+    "chapters": {"type": "array", "items": {"type": "string"}}
+  }
+}

@@ -1,0 +1,22 @@
+Open Mathematical Modeling Workflow (OMMW)
+Copyright (c) 2026 The OMMW Contributors
+
+This product is licensed under the MIT License (see LICENSE).
+
+============================================================================
+Third-party components are acknowledged in THIRD_PARTY_NOTICES.md.
+============================================================================
+
+This project's PORTABLE CORE is original work released under the MIT License.
+
+The following EXTERNAL providers are NOT part of the MIT-licensed core and are
+governed by their own (more restrictive) licenses. Users must install them
+separately and accept their upstream terms before use:
+
+  * MathModelAgent (https://github.com/jihe520/MathModelAgent)
+    Personal, non-commercial use only. Commercial use requires author consent.
+    OMMW only ships an adapter; it never redistributes MathModelAgent source.
+
+Permissive third-party skills (MIT/BSD/Apache) that are vendored or fetched
+by the installer are recorded with pinned commit SHA, license, and any local
+modifications in provenance/SOURCES.lock.json.

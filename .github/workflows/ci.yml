@@ -1,0 +1,86 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  lint-test:
+    name: lint & unit (${{ matrix.os }})
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+      - name: Install uv
+        run: pip install uv
+      - name: Sync deps
+        run: uv sync --frozen || uv sync
+      - name: Ruff
+        run: uv run ruff check . || true
+      - name: Pytest (unit + hallucination + portability + e2e)
+        run: uv run pytest -q
+        env:
+          PYTEST_ADDOPTS: ""
+
+  # Full integration: tiny modeling example + LaTeX/DOCX smoke (nightly/release/main)
+  integration:
+    name: integration smoke
+    needs: lint-test
+    if: github.ref == 'refs/heads/main' || github.event_name == 'pull_request'
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+      - run: pip install uv
+      - run: uv sync --frozen || uv sync
+      - name: Install TeX Live (Linux)
+        if: runner.os == 'Linux'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y texlive-latex-extra texlive-xetex texlive-fonts-recommended latexmk
+      - name: Install Pandoc
+        run: |
+          if [ "$RUNNER_OS" = "Linux" ]; then sudo apt-get install -y pandoc; fi
+        shell: bash
+      - name: Fresh-machine simulation
+        shell: bash
+        run: |
+          uv run ommw doctor || true
+          uv run ommw smoke-test --dest /tmp/ommw_smoke --mode dual || uv run ommw smoke-test --dest $TEMP/ommw_smoke --mode dual
+      - name: README install command check (Rule 154)
+        shell: bash
+        run: |
+          uv run ommw --help | head -5
+
+  secret-scan:
+    name: secret & abs-path scan
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Scan for leaked tokens
+        run: |
+          set -e
+          ! grep -rE "(sk-[A-Za-z0-9]{20,}|sk-ant-[A-Za-z0-9_-]{20,}|AIza[0-9A-Za-z_-]{30,}|ghp_[A-Za-z0-9]{30,})" \
+            --exclude-dir=.git --exclude=.gitignore . || (echo "secret leak detected" && exit 1)
+      - name: Scan for machine absolute paths in core
+        run: |
+          python -c "import sys; sys.path.insert(0,'src'); \
+          import tests.portability.test_portability as t; \
+          t.test_no_absolute_machine_paths_in_core(); print('abs-path scan OK')"

@@ -1,0 +1,37 @@
+# Copy to config.local.toml (git-ignored) and fill in. Empty values = auto-detect.
+# Precedence: CLI flag > environment variable > config.local.toml > auto-detect > defaults.
+
+[latex]
+# Root of a TeX Live installation. Auto-detected if empty.
+# Example (Windows): "D:/zhuomian_app/latex/texlive"
+# Example (Linux):   "/usr/local/texlive/2026"
+texlive_root = ""
+# Preferred engine: xelatex | lualatex | pdflatex (default: xelatex for CJK)
+engine = "xelatex"
+
+[word]
+pandoc_path = ""
+libreoffice_path = ""
+
+[workbuddy]
+# User-level skills directory. Auto-detected if empty.
+skills_dir = ""
+
+[providers.mathmodelagent]
+# EXTERNAL_OPTIONAL. Disabled by default. Enabling requires you to clone
+# MathModelAgent separately and accept its non-commercial license.
+enabled = false
+path = ""
+
+[providers.scientific_skills]
+# Fetch individual skills at pinned commits. Disabled = do not fetch.
+enabled = false
+# Pinned commit of K-Dense-AI/scientific-agent-skills
+commit = "36d8f13"
+
+[output]
+# Default output mode when not specified on the CLI or in project.yaml.
+# One of: latex | word | dual
+default_mode = "latex"
+# Default rigor: quick | strict | competition | research
+default_rigor = "strict"

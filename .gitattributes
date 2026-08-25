@@ -1,0 +1,30 @@
+# Normalize text files to LF in the repo, checkout native on each OS
+* text=auto eol=lf
+
+# Shell scripts must stay LF
+*.sh text eol=lf
+*.bash text eol=lf
+
+# Windows scripts stay CRLF
+*.ps1 text eol=crlf
+*.bat text eol=crlf
+*.cmd text eol=crlf
+
+# Python / source
+*.py text eol=lf
+*.toml text eol=lf
+*.yaml text eol=lf
+*.yml text eol=lf
+*.md text eol=lf
+
+# Binary artifacts (never diff / merge)
+*.pdf binary
+*.docx binary
+*.xlsx binary
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.svg binary
+*.emf binary
+*.zip binary
+*.tar.gz binary

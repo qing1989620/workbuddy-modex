@@ -1,0 +1,39 @@
+# Competition profile: generic
+
+Used when no specific competition profile is selected. Defines the minimum
+contract every profile must satisfy.
+
+[profile]
+name = "generic"
+language = "zh"
+page_limit = 0          # 0 = no limit
+anonymize = false
+reference_style = "plain"
+
+[sections]
+order = [
+  "abstract",
+  "introduction",
+  "problem-restatement",
+  "assumptions",
+  "notation",
+  "models",
+  "experiments",
+  "results",
+  "robustness",
+  "conclusions",
+]
+
+[latex]
+template = "templates/latex/main.tex"
+engine = "xelatex"
+bibliography = "bibtex"   # bibtex | biblatex
+
+[word]
+reference_doc = "templates/word/reference.docx"
+csl = "ieee"              # citation style language id
+
+[submission]
+required_files = ["pdf"]
+forbidden_files = [".env", "config.local.toml", ".cache", ".build"]
+code_required = false

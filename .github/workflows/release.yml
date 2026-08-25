@@ -1,0 +1,30 @@
+name: Release Gate
+
+on:
+  release:
+    types: [created]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  release-gate:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+      - run: pip install uv && uv sync --frozen || uv sync
+      - name: Full release gate
+        run: |
+          uv run pytest -q
+          uv run ommw doctor
+          uv run ommw smoke-test --dest $RUNNER_TEMP/ommw_smoke --mode dual
+      - name: Clean venv reproducibility (Rule 169)
+        run: |
+          uv run --no-sync python -c "import ommw; print('clean import', ommw.__version__)"

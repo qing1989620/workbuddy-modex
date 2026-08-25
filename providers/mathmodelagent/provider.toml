@@ -1,0 +1,28 @@
+# Provider descriptor for MathModelAgent.
+# This file describes an EXTERNAL provider; it does NOT vendor any upstream code.
+
+[provider]
+name = "mathmodelagent"
+trust = "EXTERNAL_OPTIONAL"
+upstream = "https://github.com/jihe520/MathModelAgent"
+license = "personal-noncommercial"
+license_note = "个人免费使用，请勿商业用途，商业用途联系我（作者）"
+# No commit pin: source is cloned by the user, not fetched by OMMW.
+vendored = false
+enabled_by_default = false
+
+[detect]
+# How to find a local install.
+module = "ommw.providers.mathmodelagent.detect"
+function = "detect"
+marker_files = ["README.md", "main.py", "agents"]
+
+[adapter]
+module = "ommw.providers.mathmodelagent.adapter"
+# The adapter only exposes a contract; it imports the upstream lazily and only
+# when the user has explicitly enabled the provider.
+entrypoint = "run_modeling_task"
+
+[capabilities]
+adds = ["multi-agent-modeling", "rag-knowledge-base", "typst-templates"]
+requires = ["python", "llm-api-key"]

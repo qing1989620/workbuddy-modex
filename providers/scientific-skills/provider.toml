@@ -1,0 +1,35 @@
+# Provider descriptor for scientific-skills (fetch-on-demand, pinned).
+
+[provider]
+name = "scientific-skills"
+trust = "AUDITED_VENDOR"
+upstream = "https://github.com/K-Dense-AI/scientific-agent-skills"
+upstream_license = "MIT"
+# Pinned commit (do NOT follow main). Update only via the documented process.
+commit = "36d8f13"
+vendored = false
+enabled_by_default = false
+
+[fetch]
+# Fetch individual skills, not the whole repo. Per-skill license audited.
+mode = "managed-fetch"
+# HTTPS, fixed SHA, verify content, record version.
+verify = "sha256"
+
+[skills]
+# Subset audited for OMMW use (Rule 19). Loaded by task router, not all at once.
+candidates = [
+  "scientific-writing",
+  "scientific-critical-thinking",
+  "literature-review",
+  "citation-management",
+  "exploratory-data-analysis",
+  "statistical-analysis",
+  "experimental-design",
+  "peer-review",
+  "sympy",
+  "uncertainty-and-units",
+  "statsmodels",
+  "scikit-learn",
+  "networkx",
+]
