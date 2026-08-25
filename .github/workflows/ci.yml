@@ -24,8 +24,8 @@ jobs:
           python-version: "3.13"
       - name: Install uv
         run: pip install uv
-      - name: Sync deps
-        run: uv sync --frozen || uv sync
+      - name: Sync deps (incl. dev extras so pytest/ruff are available)
+        run: uv sync --extra dev
       - name: Ruff
         run: uv run ruff check . || true
       - name: Pytest (unit + hallucination + portability + e2e)
@@ -49,7 +49,7 @@ jobs:
         with:
           python-version: "3.13"
       - run: pip install uv
-      - run: uv sync --frozen || uv sync
+      - run: uv sync --extra dev
       - name: Install TeX Live (Linux)
         if: runner.os == 'Linux'
         run: |
@@ -81,6 +81,27 @@ jobs:
             --exclude-dir=.git --exclude=.gitignore . || (echo "secret leak detected" && exit 1)
       - name: Scan for machine absolute paths in core
         run: |
-          python -c "import sys; sys.path.insert(0,'src'); \
-          import tests.portability.test_portability as t; \
-          t.test_no_absolute_machine_paths_in_core(); print('abs-path scan OK')"
+          python - <<'PY'
+          import re, sys
+          from pathlib import Path
+          RE = re.compile(
+              r"(?:[A-Za-z]:\\(?:Users|Program Files|Windows|ProgramData)\\)"
+              r"|(?:/(?:Users|home)/[A-Za-z0-9._-]+/)"
+          )
+          CORE_DIRS = ("src","skills","templates","providers","schemas","adapters","renderers")
+          root = Path(".")
+          offenders = []
+          for d in CORE_DIRS:
+              for p in (root/d).rglob("*"):
+                  if p.is_file() and p.suffix in (".py",".toml",".yaml",".yml",".tex",".md"):
+                      try: text = p.read_text(encoding="utf-8")
+                      except Exception: continue
+                      for line in text.splitlines():
+                          if line.strip().startswith("#"): continue
+                          if RE.search(line):
+                              offenders.append(f"{p.relative_to(root)}: {line.strip()[:120]}")
+          if offenders:
+              print("non-portable absolute paths leaked into core:")
+              print("\n".join(offenders[:20])); sys.exit(1)
+          print("abs-path scan OK")
+          PY

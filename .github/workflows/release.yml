@@ -19,7 +19,7 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: "3.13"
-      - run: pip install uv && uv sync --frozen || uv sync
+      - run: pip install uv && uv sync --extra dev
       - name: Full release gate
         run: |
           uv run pytest -q
