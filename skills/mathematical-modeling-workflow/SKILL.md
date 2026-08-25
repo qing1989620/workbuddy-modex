@@ -1,6 +1,18 @@
 ---
 name: mathematical-modeling-workflow
 title: Open Mathematical Modeling Workflow (OMMW) — Orchestrator
+description: >
+  面向 AI 智能体的数学建模工作流总控（Orchestrator / Control Plane）。当用户说
+  "调用数学建模工作流"、"OMMW"、"数学建模"、"建模"、"国赛"、"美赛"、"MCM"、"ICM"、
+  "math model"、"mathematical modeling"、"competition modeling"，或要求以工程化
+  流程完成任何数学建模类任务（国赛/美赛/校赛/课程论文、预测/优化/评价/分类、
+  LaTeX 论文写作、Word 论文写作、双输出、模型比较、敏感性分析）时触发。触发后
+  严格走 Problem State Machine：问题理解 → 数据审计 → 文献 → 建模 → 候选模型 →
+  baseline → 实现 → 实验 → 验证 → 稳健性 → 写作（每章循环）→ 反幻觉门控 →
+  LaTeX/Word 渲染 → 双模式一致性 → 终态审计。Research Core（claims/results/
+  sources/experiments/figures/tables/assumptions/notation 账本）是事实源，论文
+  不是；禁止虚构数字、虚构引用、未编译就声称 PDF ready、证据未到先写正文。
+  不触发于：纯问答/闲聊、与建模无关的代码/写作任务。
 summary: Portable, anti-hallucination competition-modeling workflow. LaTeX + Word dual output, strict research-core gates, independent review. This SKILL is the control plane only; stage detail lives in references/.
 ---
 
