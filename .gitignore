@@ -40,6 +40,9 @@ workspace-*/
 .DS_Store
 Thumbs.db
 
+# --- WorkBuddy project data (memory, agent state; never publish) ---
+.workbuddy/
+
 # --- Keep publishable templates & reference.docx ---
 !templates/**
 !templates/word/reference.docx

@@ -24,13 +24,14 @@
       "commit": "36d8f13",
       "per_skill_license_varies": true,
       "vendored": false,
-      "skills_audited": [
+      "skills_declared_for_fetch": [
         "scientific-writing", "scientific-critical-thinking", "literature-review",
         "citation-management", "exploratory-data-analysis", "statistical-analysis",
         "experimental-design", "peer-review", "sympy", "uncertainty-and-units",
         "statsmodels", "scikit-learn", "networkx"
       ],
-      "note": "Fetch individual skills at pinned commit; record per-skill license. No bulk vendor."
+      "fetched": false,
+      "note": "PIN DECLARED, NOT FETCHED. Skills listed for future fetch-on-demand at pinned commit 36d8f13; per-skill license will be recorded when actually fetched. No bulk vendor. Trust level AUDITED_VENDOR applies to the repo MIT license, NOT to per-skill verification (which has not occurred)."
     },
     {
       "id": "latex-document-skill",

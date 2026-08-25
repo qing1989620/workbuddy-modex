@@ -16,7 +16,7 @@ import pytest
 # (Excluded: docs/examples that quote a path as a demonstrative example.)
 ABS_PATH_RE = re.compile(
     r"(?m)"
-    r"(?:[A-Za-z]:\\(?:Users|zhuomian_app|Program Files|Windows|ProgramData)\\)"
+    r"(?:[A-Za-z]:\\(?:Users|Program Files|Windows|ProgramData)\\)"
     r"|(?:/(?:Users|home)/[A-Za-z0-9._-]+/)"
 )
 CORE_DIRS = ("src", "skills", "templates", "providers", "schemas", "adapters", "renderers")

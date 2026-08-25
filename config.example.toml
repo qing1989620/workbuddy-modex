@@ -3,7 +3,7 @@
 
 [latex]
 # Root of a TeX Live installation. Auto-detected if empty.
-# Example (Windows): "D:/zhuomian_app/latex/texlive"
+# Example (Windows): "D:/texlive/2026"
 # Example (Linux):   "/usr/local/texlive/2026"
 texlive_root = ""
 # Preferred engine: xelatex | lualatex | pdflatex (default: xelatex for CJK)
