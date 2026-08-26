@@ -21,10 +21,12 @@ jobs:
           python-version: "3.13"
       - run: pip install uv && uv sync --extra dev
       - name: Full release gate
+        shell: bash
         run: |
           uv run pytest -q
           uv run ommw doctor
-          uv run ommw smoke-test --dest $RUNNER_TEMP/ommw_smoke --mode dual
+          uv run ommw smoke-test --dest "$RUNNER_TEMP/ommw_smoke" --mode dual
       - name: Clean venv reproducibility (Rule 169)
+        shell: bash
         run: |
           uv run --no-sync python -c "import ommw; print('clean import', ommw.__version__)"
