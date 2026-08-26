@@ -97,8 +97,14 @@ jobs:
           root = Path(".")
           offenders = []
           for d in CORE_DIRS:
-              for p in (root/d).rglob("*"):
+              base = root / d
+              for p in base.rglob("*"):
                   if p.is_file() and p.suffix in (".py",".toml",".yaml",".yml",".tex",".md"):
+                      # templates/local/ = THIRD-PARTY template copies; their
+                      # embedded machine paths are import data audited by the
+                      # template pipeline (known_issues), not core source.
+                      if d == "templates" and "local" in p.relative_to(base).parts[:1]:
+                          continue
                       try: text = p.read_text(encoding="utf-8")
                       except Exception: continue
                       for line in text.splitlines():
