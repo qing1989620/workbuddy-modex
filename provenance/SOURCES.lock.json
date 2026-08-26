@@ -65,9 +65,12 @@
       "kind": "template-provider",
       "trust": "EXTERNAL_OPTIONAL",
       "upstream": "https://github.com/GaoZx13470/cumcm-template-2026",
-      "license": "PENDING_AUDIT",
+      "license": "CC-BY-NC-SA-4.0 (template source) + OFL-1.1 (fonts) + LPPL-1.3c (gbt7714 bst)",
       "vendored": false,
-      "note": "Template provider, NOT in MIT core. Audit license/commit/fonts/BibTeX before any use. Official CUMCM rules always override."
+      "note": "EXTERNAL_OPTIONAL provider. CC BY-NC-SA forbids commercial use and share-alike — incompatible with MIT core; do NOT vendor. Use via templates/providers instructions.",
+      "commit": "809cf14",
+      "audited_at": "2026-08-26",
+      "audit_note": "Multi-license audit complete: template source CC BY-NC-SA 4.0 (NON-COMMERCIAL -> NEVER vendor into MIT core); fonts SIL OFL 1.1; gbt7714-numeric.bst LPPL 1.3c (zepinglee). External provider only: user clones it themselves. Official CUMCM rules always override template."
     },
     {
       "id": "mcmthesis",
@@ -76,7 +79,10 @@
       "upstream": "https://github.com/latexstudio-org/mcmthesis",
       "license": "LPPL",
       "vendored": false,
-      "note": "MCM template provider (LPPL). COMAP official rules re-read every year; never assume template defaults equal current COMAP rules."
+      "note": "EXTERNAL_OPTIONAL provider (LPPL). COMAP official rules re-read every year; never assume template defaults equal current COMAP rules. LPPL allows use/redistribution with LPPL conditions.",
+      "commit": "8ac05e2",
+      "audited_at": "2026-08-26",
+      "license_note": "LPPL v1.3c or later; last update 2024-01-25 synced to 2024 official sheet (a4paper/newtx/AI citation style)."
     },
     {
       "id": "sci-box",
@@ -85,7 +91,10 @@
       "upstream": "https://github.com/jihe520/sci-box",
       "license": "PENDING_AUDIT",
       "vendored": false,
-      "note": "Scientific figure patterns as reference only. Code NOT copied into public core while license unclear."
+      "note": "REFERENCE only. No repo-level license -> code NOT copied into public core. Figure patterns may inform our own matplotlib backend design.",
+      "commit": "9687d2a",
+      "audited_at": "2026-08-26",
+      "audit_note": "No repository-level LICENSE file found; README mentions Tabler Icons (MIT) in scibox-diagram assets only. matploblib-based scibox-figure templates are design reference only."
     }
   ]
 }

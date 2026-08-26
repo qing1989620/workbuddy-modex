@@ -68,6 +68,32 @@ Users install these on their own machine. OMMW only auto-detects and invokes the
   RE-IMPLEMENTS these disciplines for competition modeling; it does NOT reuse
   the arXiv/IEEE harness.
 
+## D2. Competition template providers (NOT vendored; user installs separately)
+
+### cumcm-template-2026 (GaoZx13470)
+- Upstream: https://github.com/GaoZx13470/cumcm-template-2026 (audited 2026-08-26, commit `809cf14`)
+- License: **multi-license** — template source (`.cls`/`.tex`/build scripts): **CC BY-NC-SA 4.0**
+  (non-commercial, share-alike); bundled fonts: **SIL OFL 1.1**; `bib/gbt7714-numeric.bst`: **LPPL 1.3c**
+  (Copyright zepinglee).
+- OMMW trust level: `EXTERNAL_OPTIONAL`. **The CC BY-NC-SA non-commercial +
+  share-alike terms are incompatible with the MIT core — OMMW NEVER vendors this
+  template.** Users who want it clone the repo themselves. Official CUMCM rules
+  always override any template.
+
+### mcmthesis (latexstudio-org)
+- Upstream: https://github.com/latexstudio-org/mcmthesis (audited 2026-08-26, commit `8ac05e2`)
+- License: **LPPL v1.3c or later** (last updated 2024-01 to the 2024 official sheet format).
+- OMMW trust level: `EXTERNAL_OPTIONAL`. LPPL permits use/redistribution under LPPL
+  conditions; OMMW ships no mcmthesis code. COMAP official rules are re-read every
+  year — never assume template defaults equal current COMAP rules.
+
+### sci-box (jihe520)
+- Upstream: https://github.com/jihe520/sci-box (audited 2026-08-26, commit `9687d2a`)
+- License: **no repository-level LICENSE file found** (assets in scibox-diagram note
+  Tabler Icons MIT only).
+- OMMW trust level: `REFERENCE`. No code from sci-box is copied into the public
+  core; its figure patterns may inform OMMW's own matplotlib backend design.
+
 ## E. Vendored assets shipped in-tree
 
 Any asset vendored into the repository tree is listed here with its upstream

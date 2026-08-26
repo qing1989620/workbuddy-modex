@@ -676,9 +676,15 @@ def plot(
     why: str = typer.Option("", "--why", "-w"),
     context: str = typer.Option("data", "--context", help="data|model|experiment"),
     claim_type: str = typer.Option("comparison", "--claim-type"),
+    render: bool = typer.Option(False, "--render", help="actually render with matplotlib"),
+    data_csv: str = typer.Option("", "--data-csv", help="CSV for rendering (col1=category, rest=series)"),
+    xlabel: str = typer.Option("", "--xlabel"),
+    ylabel: str = typer.Option("", "--ylabel"),
+    unit: str = typer.Option("", "--unit"),
+    outdir: str = typer.Option("", "--outdir", help="render output dir (default: project root)"),
 ) -> None:
     """Figure planner: pre-register a figure with Q/C/D/Why (Rule 50)."""
-    from .visualization import plan_figure, validate_figure_plan
+    from .visualization import plan_figure, render_figure, validate_figure_plan
     pp, _ = _load_project(project)
     fp = plan_figure(figure_id=figure_id, question=question, claim=claim,
                      data=data, why=why, context=context, claim_type=claim_type)
@@ -690,9 +696,23 @@ def plot(
     if rep.passed:
         from .schemas import FigureRecord
         from . import atomic
+        out_path = fp.output
+        if render:
+            od = Path(outdir) if outdir else pp.root
+            target = od / out_path
+            outcome = render_figure(
+                figure_type=fp.figure_type, output=target,
+                data_csv=Path(data_csv) if data_csv else None,
+                xlabel=xlabel, ylabel=ylabel, unit=unit, title=question[:60],
+                formats=("png", "pdf"),
+            )
+            console.print(f"  render[{outcome.status}]: {outcome.output or outcome.note}")
+            if outcome.status == "RENDERED":
+                out_path = outcome.output
         atomic.append_jsonl(pp.figures_index, FigureRecord(
-            figure_id=fp.figure_id, generator="ommw plot", data=fp.data,
-            result_ids=[fp.claim], caption="", section="", output=fp.output,
+            figure_id=fp.figure_id,
+            generator="ommw plot" + ("+matplotlib" if render else ""),
+            data=fp.data, result_ids=[fp.claim], caption="", section="", output=out_path,
         ).model_dump(mode="json"))
         console.print("registered to figures.jsonl")
 

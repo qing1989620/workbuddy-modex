@@ -189,6 +189,15 @@ def run() -> DoctorReport:
     sch = root / "schemas"
     n_sch = len(list(sch.glob("*.schema.json"))) if sch.exists() else 0
     rep.add(Check("SCHEMAS:json", STATUS_PASS if n_sch >= 4 else STATUS_WARN, f"{n_sch} json schemas"))
+    # Visualization backend (optional matplotlib, Rule 49-56).
+    try:
+        from .visualization import matplotlib_available
+        mpl_ok = matplotlib_available()
+    except Exception:
+        mpl_ok = False
+    rep.add(Check("RESEARCH:visualization-backend",
+                  STATUS_PASS if mpl_ok else STATUS_WARN,
+                  "matplotlib OK" if mpl_ok else "matplotlib missing (pip install ommw[plot]); figure render DEGRADED"))
     return rep
 
 

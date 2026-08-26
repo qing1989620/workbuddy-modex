@@ -6,16 +6,22 @@ each must pass license/commit/font/BibTeX audits and be recorded in
 template (Rule 80, 135: TEMPLATE CONFLICT -> official rules win).
 
 ## CUMCM template provider
-- Upstream: `GaoZx13470/cumcm-template-2026`
-- Status: **PENDING AUDIT** — must check license, commit SHA, font licenses,
-  BibTeX style license before any use. Not vendored.
+- Upstream: `GaoZx13470/cumcm-template-2026` (audited 2026-08-26, commit `809cf14`)
+- License: **multi-license** — template source (`.cls`/`.tex`/build scripts):
+  **CC BY-NC-SA 4.0** (non-commercial + share-alike); bundled fonts: **SIL OFL 1.1**;
+  `bib/gbt7714-numeric.bst`: **LPPL 1.3c** (zepinglee).
+- Status: **AUDITED — EXTERNAL_OPTIONAL only**. The CC BY-NC-SA terms are
+  incompatible with the MIT core: OMMW NEVER vendors this template. Users who
+  want it clone the repo themselves and accept its terms. Official CUMCM rules
+  always override the template.
 
 ## MCM/ICM template provider
-- Upstream: `latexstudio-org/mcmthesis`
-- License: LPPL (LaTeX Project Public License).
-- Status: **PENDING AUDIT** — LPPL permits use with attribution; the provider
-  is external. COMAP official rules are re-read EVERY year; never assume
-  template defaults equal current COMAP rules.
+- Upstream: `latexstudio-org/mcmthesis` (audited 2026-08-26, commit `8ac05e2`)
+- License: LPPL v1.3c or later (LaTeX Project Public License); last updated
+  2024-01-25 synced to the 2024 official sheet (a4paper/newtx/AI citation style).
+- Status: **AUDITED — EXTERNAL_OPTIONAL**. LPPL permits use with LPPL conditions;
+  the provider is external. COMAP official rules are re-read EVERY year; never
+  assume template defaults equal current COMAP rules.
 
 ## Generic template (in-tree, original)
 - `templates/latex/main.tex` (CJK-safe xelatex), `templates/word/reference.docx`

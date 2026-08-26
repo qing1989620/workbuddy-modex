@@ -32,10 +32,15 @@ dependencies = [
 ]
 
 [project.optional-dependencies]
+plot = [
+  "matplotlib>=3.8",
+  "numpy>=1.26",
+]
 dev = [
   "pytest>=8.2",
   "pytest-cov>=5.0",
   "ruff>=0.5",
+  "ommw[plot]",
 ]
 
 [project.scripts]
