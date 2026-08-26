@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "ommw"
-version = "1.0.0-rc1"
+version = "1.0.0-rc2"
 description = "Open Mathematical Modeling Workflow: a portable, local-first, anti-hallucination workflow for competition mathematical modeling with LaTeX + Word dual output."
 readme = "README.md"
 license = "MIT"

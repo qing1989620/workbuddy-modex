@@ -7,5 +7,5 @@ portable core; renderer logic, adapters, and providers live alongside it.
 
 from __future__ import annotations
 
-__version__ = "1.0.0-rc1"
+__version__ = "1.0.0-rc2"
 __all__ = ["__version__"]
