@@ -29,6 +29,7 @@ ommw.egg-info/
 
 # --- Local dev scratch (regenerable) ---
 _smoke/
+_smoke.prev-*/
 _demo/
 workspace/
 projects/
@@ -46,3 +47,8 @@ Thumbs.db
 # --- Keep publishable templates & reference.docx ---
 !templates/**
 !templates/word/reference.docx
+
+# Template pipeline internals: staging is a rebuildable work copy (contains
+# _compile_test logs/pdfs); the pristine originals live in raw/, the ready
+# tree in normalized/. Reports and the registry ARE committed.
+templates/local/staging/

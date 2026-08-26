@@ -65,6 +65,24 @@ class Stage(str, Enum):
     final_verify = "FINAL_VERIFY"
     verified = "VERIFIED"
 
+    # --- v0.2 Paper Production Kernel stages (additive; spec §63/§67/§68) ---
+    evidence_freeze = "EVIDENCE_FREEZE"
+    paper_contract = "PAPER_CONTRACT"
+    narrative_backbone = "NARRATIVE_BACKBONE"
+    visual_plan = "VISUAL_PLAN"
+    abstract_synthesis = "ABSTRACT_SYNTHESIS"
+    abstract_gate = "ABSTRACT_GATE"
+    chapters_verified = "CHAPTERS_VERIFIED"
+    chapter_blocked = "CHAPTER_BLOCKED"       # -> EVIDENCE_GAP -> back to research
+    evidence_gap = "EVIDENCE_GAP"
+    latex_verified = "LATEX_VERIFIED"
+    pdf_visual_qa = "PDF_VISUAL_QA"
+    citation_audit = "CITATION_AUDIT"
+    result_consistency = "RESULT_CONSISTENCY"
+    final_paper_gate = "FINAL_PAPER_GATE"
+    competition_ready = "COMPETITION_READY"
+    blocked = "BLOCKED"
+
     @classmethod
     def ordered(cls) -> list["Stage"]:
         return list(Stage)

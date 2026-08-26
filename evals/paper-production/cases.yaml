@@ -1,0 +1,69 @@
+# Paper Production Regression Evals (spec §50-§56)
+# Each case: build the canonical minimal-complete base project, apply one
+# mutation, run every Paper Production Gate, and assert the expected codes.
+#
+#   expect_fail : true  -> at least one gate must FAIL (HIGH/CRITICAL found)
+#                 false -> every gate must PASS (LOW/MEDIUM tolerated)
+#   expect_codes: finding codes that MUST appear somewhere in the reports
+#   no_critical : when expect_fail, these CRITICAL-level codes must appear
+
+cases:
+  - id: EV01-missing-abstract
+    description: abstract deleted from BOTH renderers -> hard CRITICAL gate
+    mutation: drop_abstract
+    expect_fail: true
+    expect_codes: [ABSTRACT_MISSING]
+
+  - id: EV02-thin-question-chapter
+    description: question chapter replaced by a 9-word stub -> placeholder gate
+    mutation: stub_question_chapter
+    expect_fail: true
+    expect_codes: [PLACEHOLDER_SECTION]
+
+  - id: EV03-text-only-algorithm
+    description: model chapter describes an algorithm in prose with zero equations
+    mutation: text_only_algorithm
+    expect_fail: true
+    expect_codes_any: [FORMULA_DENSITY_ANOMALY, FORMULA_DENSITY_WARNING, VISUAL_EVIDENCE_INSUFFICIENT]
+
+  - id: EV04-figure-without-discussion
+    description: figure environment kept but every textual reference removed
+    mutation: figure_without_discussion
+    expect_fail: true
+    expect_codes: [FIGURE_NOT_REFERENCED]
+
+  - id: EV05-unsupported-result-claim
+    description: percentage improvement asserted without Result-ID or ledger value
+    mutation: unsupported_claim
+    expect_fail: true
+    expect_codes: [UNSUPPORTED_CLAIM]
+
+  - id: EV06-disconnected-questions
+    description: dependency map declares a coupling the paper never materializes
+    mutation: disconnected_questions
+    expect_fail: true
+    expect_codes: [NARRATIVE_CONTINUITY_WARNING]
+
+  - id: EV07-bad-layout-overfull
+    description: REAL xelatex compile producing an overfull hbox >15pt
+    mutation: real_compile_overfull
+    expect_fail: true
+    expect_codes: [LAYOUT_OVERFULL]
+
+  - id: EV08-formula-inflation
+    description: equation dump with almost no prose (fake mathematical depth)
+    mutation: formula_inflation
+    expect_fail: false
+    expect_codes: [FORMULA_INFLATION_SUSPECTED]
+
+  - id: EV09-missing-visualization
+    description: every visual asset stripped from the paper -> CRITICAL
+    mutation: strip_visuals
+    expect_fail: true
+    expect_codes: [PAPER_WITHOUT_VISUALS]
+
+  - id: EV10-excellent-compact-paper
+    description: untouched base project must clear EVERY gate with zero criticals
+    mutation: none
+    expect_fail: false
+    expect_codes: []

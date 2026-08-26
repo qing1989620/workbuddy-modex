@@ -8,6 +8,7 @@ capabilities.json and constrain what the workflow may later claim.
 from __future__ import annotations
 
 import dataclasses
+import json
 import os
 import platform
 import shutil
@@ -25,6 +26,7 @@ from .config import (
     detect_workbuddy_skills_dir,
 )
 from .paths import core_root
+from .templates_local import REGISTRY_NAME
 
 STATUS_PASS = "PASS"
 STATUS_WARN = "WARN"
@@ -198,6 +200,26 @@ def run() -> DoctorReport:
     rep.add(Check("RESEARCH:visualization-backend",
                   STATUS_PASS if mpl_ok else STATUS_WARN,
                   "matplotlib OK" if mpl_ok else "matplotlib missing (pip install ommw[plot]); figure render DEGRADED"))
+    # --- v0.2: Paper Production Kernel + local template registry ---
+    pk = root / "src" / "ommw" / "paper"
+    rep.add(Check("PAPER:kernel",
+                  STATUS_PASS if (pk / "gates.py").exists() else STATUS_FAIL,
+                  "ok" if (pk / "gates.py").exists() else "missing paper production kernel"))
+    evals = root / "evals" / "paper-production"
+    rep.add(Check("PAPER:production-evals",
+                  STATUS_PASS if evals.exists() and any(evals.iterdir()) else STATUS_WARN,
+                  f"{len(list(evals.glob('*')))} files" if evals.exists() else "no paper-production evals"))
+    treg = root / "templates" / REGISTRY_NAME
+    if treg.exists():
+        try:
+            n_tpl = len(json.loads(treg.read_text(encoding="utf-8")))
+        except Exception:
+            n_tpl = 0
+        rep.add(Check("TEMPLATES:local-registry", STATUS_PASS if n_tpl else STATUS_WARN,
+                      f"{n_tpl} templates registered ({REGISTRY_NAME})"))
+    else:
+        rep.add(Check("TEMPLATES:local-registry", STATUS_WARN,
+                      f"no {REGISTRY_NAME}; run `ommw template-import` on the provided archives"))
     return rep
 
 

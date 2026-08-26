@@ -9,7 +9,54 @@ OMMW versioning contract:
 - **MINOR**: new backward-compatible capability (new renderer, provider, competition profile).
 - **PATCH**: bug fix.
 
-## [1.0.0-rc1] - 2026-08-26
+## [1.0.0-rc2] - 2026-08-26
+
+### Added — v0.2 Paper Production Kernel (quality upgrade layer)
+- `paper/` package: `contract.py` (QuestionContract/PaperContract + gate options),
+  `density.py` (CJK-aware chapter density: prose word counts, formula/figure/
+  table/ref counts, AI-phrase + bidirectional formula anomalies),
+  `gates.py` (9 content gates returning `VerifyReport`: abstract hard gate,
+  placeholder, formula sufficiency, visual evidence, figure-text coupling,
+  experiment sufficiency, narrative continuity, symbol consistency, LaTeX
+  layout audit; `run_all_paper_gates`/`has_critical`/`write_audit_bundle`),
+  `scorecard.py` (12-dim 100-pt scorecard, COMPETITION_READY=88, critical veto).
+- CLI: `paper-contract`, `audit-paper`, `quality-gate`, `template-import`,
+  `template-list`, `template-select`.
+- `templates_local.py`: real template intake pipeline (raw read-only + sha256,
+  GBK zip-name repair, zip-slip guard, engine detection, REAL xelatex compile
+  smoke, ASCII entry-name fallback, bibtex completion pass, registry).
+- `evals/paper-production/`: 10 regression cases (missing abstract / thin
+  chapter / prose-only algorithm / unreferenced figure / unsupported claim /
+  disconnected questions / real-compile overfull / formula inflation / no
+  visuals / excellent-compact control) — ALL PASS.
+- `scripts/make_template_demos.py` (§73 stress demos, real compile),
+  `scripts/finalize_template_registry.py` (roles + comparison report),
+  `scripts/audit_paper.sh` (§74 wrapper).
+- State machine: EVIDENCE_FREEZE / PAPER_CONTRACT / NARRATIVE_BACKBONE /
+  VISUAL_PLAN / ABSTRACT_SYNTHESIS / ABSTRACT_GATE / CHAPTERS_VERIFIED /
+  CHAPTER_BLOCKED / EVIDENCE_GAP / LATEX_VERIFIED / PDF_VISUAL_QA /
+  CITATION_AUDIT / RESULT_CONSISTENCY / FINAL_PAPER_GATE / COMPETITION_READY /
+  BLOCKED stages.
+- Master skill: Paper Production Kernel routing + 6 new references
+  (paper-production/abstract/math-density/experiment-evidence/visualization/
+  judge-policy).
+
+### Fixed — anti-vacuous-pass and gate bugs
+- `verify.py`: stub-section scan + comment-stripped word counting (empty-ledger
+  vacuous pass eliminated; demo4 now fails 4 CRITICALs).
+- `paper/gates.py`: narrative token set now includes `\label` definitions
+  (definition→use coupling was invisible); overfull hbox fractional pts no
+  longer silently zeroed by `isdigit()`; `%` claims match escaped `\%`
+  (standard LaTeX writing).
+- `paper/density.py`: prose words exclude math bodies; `RE_DISPLAY_EQ` matches
+  whole environments (formula-inflation detector no longer self-defeating).
+- `templates_local.py`: non-ASCII main-tex name fallback + output-dir anchored
+  next to main tex (CUMCM CJK-named template now really compiles);
+  hardcoded-path audit for third-party template scripts.
+- `smoke.py`: sandbox-safe run isolation (archive-by-rename), stub injection
+  stubs an existing chapter and restores it (no create-then-delete).
+
+## [1.0.0-rc1] - 2026-08-26 (contents before the v0.2 upgrade)
 
 ### Added — Mathematical Modeling Research Operating System
 - `competition/`: competition profile detect/build/cache, LIVE/TRAINING/REVIEW/

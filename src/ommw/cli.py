@@ -411,6 +411,169 @@ def package(
 
 
 # ---------------------------------------------------------------------------
+# v0.2 Paper Production Kernel: contract / audit-paper / quality-gate
+# ---------------------------------------------------------------------------
+
+@app.command(name="paper-contract")
+def paper_contract(
+    project: Path = typer.Option(Path("."), "--project", "-p"),
+    questions: int = typer.Option(0, "--questions", "-q", help="number of subproblems"),
+    template_id: str = typer.Option("", "--template", help="registry template id"),
+    page_limit: int = typer.Option(0, "--page-limit", help="0 = from competition profile"),
+) -> None:
+    """Scaffold state/paper-contract.yaml (spec §11). Idempotent per question."""
+    from .paper import load_contract, save_contract, scaffold_contract
+    pp, proj = _load_project(project)
+    existing = load_contract(pp)
+    n_q = questions or len(existing.questions) if existing else questions
+    n_q = n_q or 3
+    c = scaffold_contract(pp, competition=proj.competition, problem=proj.title,
+                          language=proj.language, n_questions=n_q,
+                          page_limit=page_limit, template_id=template_id)
+    # keep refined fields when re-running on an existing contract
+    if existing:
+        for old in existing.questions:
+            for new in c.questions:
+                if new.question_id == old.question_id:
+                    for f in ("objective", "model_family", "mathematical_formulation",
+                              "solution_algorithm", "experiments", "figures",
+                              "tables", "answer", "depends_on"):
+                        val = getattr(old, f)
+                        if val and (not getattr(new, f) or str(getattr(new, f)).startswith("(fill")):
+                            setattr(new, f, val)
+        if existing.template_id:
+            c.template_id = existing.template_id or template_id
+    p = save_contract(pp, c)
+    console.print(f"[green]PaperContract[/green] -> {p}")
+    for q in c.questions:
+        console.print(f"  {q.question_id}: min_eq={q.min_display_equations} "
+                      f"experiments={q.requires_experiments} depends_on={q.depends_on}")
+
+
+@app.command(name="audit-paper")
+def audit_paper(
+    project: Path = typer.Option(Path("."), "--project", "-p"),
+    outdir: Path = typer.Option(Path("audits"), "--outdir", "-o"),
+) -> None:
+    """Run ALL content gates + density analysis; persist audit bundle."""
+    from .paper import gate_status, has_critical, load_contract, run_all_paper_gates
+    from .paper.density import build_density_report
+    from .paper.gates import write_audit_bundle
+    pp, _ = _load_project(project)
+    contract = load_contract(pp)
+    options = contract.gate_options() if contract else None
+    reports = run_all_paper_gates(pp, options)
+    density = build_density_report(pp.latex_dir)
+    out = write_audit_bundle(pp, reports, density, project / outdir)
+    tbl = Table(title="Paper Production Gates")
+    tbl.add_column("gate"); tbl.add_column("status"); tbl.add_column("findings")
+    for g, r in reports.items():
+        st = gate_status(r)
+        color = {"PASS": "green", "WARN": "yellow", "FAIL": "red"}[st]
+        tbl.add_row(g, f"[{color}]{st}[/{color}]", str(len(r.findings)))
+    console.print(tbl)
+    crit = has_critical(reports)
+    for g, code in crit:
+        console.print(f"  [red]CRITICAL[/red] {g}: {code}")
+    console.print(f"bundle -> {out}")
+    if crit:
+        raise typer.Exit(1)
+
+
+@app.command(name="quality-gate")
+def quality_gate(
+    project: Path = typer.Option(Path("."), "--project", "-p"),
+    out: Path = typer.Option(Path("audits/paper-quality-scorecard.json"), "--out"),
+) -> None:
+    """Deterministic 100-point scorecard; BLOCKED on any critical failure."""
+    from .paper import score_paper
+    from .paper.scorecard import write_scorecard
+    pp, _ = _load_project(project)
+    sc = score_paper(pp)
+    p = write_scorecard(sc, project / out)
+    tbl = Table(title=f"Paper Quality Scorecard — verdict [bold]{sc.verdict}[/bold]")
+    tbl.add_column("dimension"); tbl.add_column("score"); tbl.add_column("/"); tbl.add_column("evidence")
+    for s in sc.subscores:
+        tbl.add_row(s.dimension, str(s.score), str(s.weight), s.evidence[:70])
+    console.print(tbl)
+    console.print(f"total: [bold]{sc.total}/100[/bold]  verdict: "
+                  f"[bold {'green' if sc.verdict.startswith(('COMPETITION', 'APPROVED')) else 'red'}]"
+                  f"{sc.verdict}[/bold {'green' if sc.verdict.startswith(('COMPETITION', 'APPROVED')) else 'red'}]")
+    for g, code in sc.critical:
+        console.print(f"  [red]critical override:[/red] {g}:{code}")
+    console.print(f"saved -> {p}")
+    if sc.verdict == "BLOCKED":
+        raise typer.Exit(1)
+
+
+# ---------------------------------------------------------------------------
+# v0.2 Template Intake Pipeline
+# ---------------------------------------------------------------------------
+
+@app.command(name="template-import")
+def template_import(
+    archive: Path = typer.Argument(..., help="path to .zip/.7z/.rar template archive"),
+    templates_dir: Path = typer.Option(Path("templates"), "--templates-dir"),
+    role: str = typer.Option("", "--role", help="role hint: PRIMARY|SECONDARY"),
+) -> None:
+    """Import a LaTeX template archive: extract/audit/compile/normalize/register."""
+    from .templates_local import import_archive
+    cfg = load_config()
+    rec, report = import_archive(archive.expanduser().resolve(),
+                                 templates_dir.expanduser().resolve(), cfg, role_hint=role)
+    color = {"PASS": "green", "WARN": "yellow"}.get(rec.compile_status, "red")
+    console.print(f"Template [bold]{rec.template_id}[/bold]: engine={rec.required_engine} "
+                  f"class={rec.document_class}")
+    console.print(f"compile: [{color}]{rec.compile_status}[/{color}]  "
+                  f"main={rec.main_tex or 'NOT FOUND'}")
+    for w in rec.compile_warnings[:5]:
+        console.print(f"  warn: {w}")
+    for issue in rec.known_issues[:5]:
+        console.print(f"  issue: {issue}")
+    console.print(f"report -> {report}")
+    if rec.compile_status not in ("PASS", "WARN"):
+        raise typer.Exit(1)
+
+
+@app.command(name="template-list")
+def template_list(
+    templates_dir: Path = typer.Option(Path("templates"), "--templates-dir"),
+) -> None:
+    """Show the machine-readable template registry."""
+    from .templates_local import load_registry
+    reg = load_registry(templates_dir.expanduser().resolve())
+    if not reg:
+        console.print("Registry empty. Import archives via `ommw template-import`.")
+        return
+    tbl = Table(title="Template registry")
+    for col in ("id", "engine", "class", "compile", "zh", "role"):
+        tbl.add_column(col)
+    for tid, d in sorted(reg.items()):
+        zh = d.get("competition_fit", {}).get("chinese_support")
+        tbl.add_row(tid, d.get("required_engine", ""), d.get("document_class", ""),
+                    d.get("compile_status", ""), "yes" if zh else "no", d.get("role", ""))
+    console.print(tbl)
+
+
+@app.command(name="template-select")
+def template_select(
+    competition: str = typer.Option("", "--competition", help="cumcm|mcm_icm|..."),
+    language: str = typer.Option("", "--language", help="zh|en"),
+    templates_dir: Path = typer.Option(Path("templates"), "--templates-dir"),
+) -> None:
+    """Pick a compiled-verified template from the registry (no hardcoded paths)."""
+    from .templates_local import select_template
+    rec = select_template(templates_dir.expanduser().resolve(),
+                          competition=competition, language=language)
+    if not rec:
+        console.print("[red]No compiled-verified template matches; import one first.[/red]")
+        raise typer.Exit(1)
+    console.print(f"SELECTED: [bold]{rec.template_id}[/bold] ({rec.role or 'available'})")
+    console.print(f"  main_tex={rec.main_tex} engine={rec.required_engine}")
+    console.print(f"  usage: {rec.recommended_usage}")
+
+
+# ---------------------------------------------------------------------------
 # smoke-test
 # ---------------------------------------------------------------------------
 

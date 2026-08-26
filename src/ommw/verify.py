@@ -122,8 +122,49 @@ def research_verify(project: ProjectPaths) -> VerifyReport:
             continue
         for f in base.glob("*.tex" if kind == "latex" else "*.md"):
             scan_for_orphan_numbers(f, results, rep, kind)
+            scan_for_stub_section(f, rep, kind)
 
     return rep
+
+
+# v0.2 upgrade: the demo4 failure mode. A paper whose sections are all
+# placeholders used to pass because an EMPTY ledger means zero broken links
+# (vacuous pass). Content presence is now itself a research-core invariant.
+
+STUB_MIN_EFFECTIVE_WORDS = 25
+
+_PLACEHOLDER_TOKENS = ("placeholder", "todo", "fixme", "<!--")
+
+
+def _effective_words(text: str) -> int:
+    body = "\n".join(l for l in text.splitlines() if not l.strip().startswith(("%", "<!--")))
+    body = re.sub(r"\\[a-zA-Z]+|[{}$&#^_~]", " ", body)
+    words = re.findall(r"[A-Za-z]+|[^\sA-Za-z]", body)
+    return len([w for w in words if not w.isspace()])
+
+
+def scan_for_stub_section(path: Path, rep: VerifyReport, kind: str) -> None:
+    """A section file that is only a stub fails verification (HIGH).
+
+    Model/experiment/abstract stubs are the exact defect class that shipped a
+    placeholder-only paper in the v0.1 acceptance test (see
+    audits/paper-production-postmortem.md).
+    """
+    try:
+        text = path.read_text(encoding="utf-8", errors="ignore")
+    except OSError:
+        return
+    low = text.lower()
+    is_stub = (_effective_words(text) < STUB_MIN_EFFECTIVE_WORDS
+               and any(tok in low for tok in _PLACEHOLDER_TOKENS))
+    if not is_stub:
+        return
+    stem = path.stem.lower()
+    critical_roles = ("abstract", "model", "question", "models")
+    sev = "CRITICAL" if any(r in stem for r in critical_roles) else "HIGH"
+    rep.add(sev, "stub-section",
+            f"{path.name} contains no real content (placeholder stub)",
+            f"{kind}:{path.name}")
 
 
 def scan_for_orphan_numbers(path: Path, results: dict, rep: VerifyReport, kind: str) -> None:

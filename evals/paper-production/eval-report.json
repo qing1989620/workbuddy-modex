@@ -1,0 +1,221 @@
+{
+  "generated_at": "2026-08-26T21:54:27",
+  "total": 10,
+  "failures": 0,
+  "cases": [
+    {
+      "id": "EV01-missing-abstract",
+      "mutation_note": "abstract emptied in BOTH renderers",
+      "passed": true,
+      "checks": {
+        "fail_expectation": true,
+        "required_codes": true,
+        "any_of_codes": true
+      },
+      "failed_gates": [
+        "abstract",
+        "placeholder"
+      ],
+      "criticals": [
+        [
+          "abstract",
+          "ABSTRACT_MISSING"
+        ],
+        [
+          "placeholder",
+          "PLACEHOLDER_SECTION"
+        ]
+      ],
+      "codes_found": [
+        "ABSTRACT_MISSING",
+        "PDF_NOT_BUILT",
+        "PLACEHOLDER_SECTION",
+        "SYMBOL_TABLE_SMALL"
+      ]
+    },
+    {
+      "id": "EV02-thin-question-chapter",
+      "mutation_note": "models chapter reduced to a comment stub",
+      "passed": true,
+      "checks": {
+        "fail_expectation": true,
+        "required_codes": true,
+        "any_of_codes": true
+      },
+      "failed_gates": [
+        "narrative_continuity",
+        "placeholder",
+        "visual_evidence"
+      ],
+      "criticals": [
+        [
+          "placeholder",
+          "PLACEHOLDER_SECTION"
+        ]
+      ],
+      "codes_found": [
+        "NARRATIVE_CONTINUITY_WARNING",
+        "PDF_NOT_BUILT",
+        "PLACEHOLDER_SECTION",
+        "SYMBOL_TABLE_SMALL",
+        "VISUAL_EVIDENCE_INSUFFICIENT"
+      ]
+    },
+    {
+      "id": "EV03-text-only-algorithm",
+      "mutation_note": "model chapter is prose-only algorithm, zero display equations",
+      "passed": true,
+      "checks": {
+        "fail_expectation": true,
+        "required_codes": true,
+        "any_of_codes": true
+      },
+      "failed_gates": [
+        "formula_sufficiency",
+        "narrative_continuity",
+        "visual_evidence"
+      ],
+      "criticals": [],
+      "codes_found": [
+        "FORMULA_DENSITY_WARNING",
+        "NARRATIVE_CONTINUITY_WARNING",
+        "PDF_NOT_BUILT",
+        "SYMBOL_TABLE_SMALL",
+        "VISUAL_EVIDENCE_INSUFFICIENT"
+      ]
+    },
+    {
+      "id": "EV04-figure-without-discussion",
+      "mutation_note": "every textual reference to fig:forecast removed",
+      "passed": true,
+      "checks": {
+        "fail_expectation": true,
+        "required_codes": true,
+        "any_of_codes": true
+      },
+      "failed_gates": [
+        "figure_text_coupling"
+      ],
+      "criticals": [],
+      "codes_found": [
+        "FIGURE_NOT_REFERENCED",
+        "PDF_NOT_BUILT",
+        "SYMBOL_TABLE_SMALL"
+      ]
+    },
+    {
+      "id": "EV05-unsupported-result-claim",
+      "mutation_note": "floating percentage claim with no Result-ID anchor",
+      "passed": true,
+      "checks": {
+        "fail_expectation": true,
+        "required_codes": true,
+        "any_of_codes": true
+      },
+      "failed_gates": [
+        "experiment_sufficiency"
+      ],
+      "criticals": [],
+      "codes_found": [
+        "PDF_NOT_BUILT",
+        "SYMBOL_TABLE_SMALL",
+        "UNSUPPORTED_CLAIM"
+      ]
+    },
+    {
+      "id": "EV06-disconnected-questions",
+      "mutation_note": "declared models->results coupling with no shared evidence",
+      "passed": true,
+      "checks": {
+        "fail_expectation": true,
+        "required_codes": true,
+        "any_of_codes": true
+      },
+      "failed_gates": [
+        "narrative_continuity"
+      ],
+      "criticals": [],
+      "codes_found": [
+        "NARRATIVE_CONTINUITY_WARNING",
+        "PDF_NOT_BUILT",
+        "SYMBOL_TABLE_SMALL"
+      ]
+    },
+    {
+      "id": "EV07-bad-layout-overfull",
+      "mutation_note": "real xelatex run produced layout_probe.log/pdf as output/main.*",
+      "passed": true,
+      "checks": {
+        "fail_expectation": true,
+        "required_codes": true,
+        "any_of_codes": true
+      },
+      "failed_gates": [
+        "latex_layout"
+      ],
+      "criticals": [],
+      "codes_found": [
+        "LAYOUT_OVERFULL",
+        "SYMBOL_TABLE_SMALL"
+      ]
+    },
+    {
+      "id": "EV08-formula-inflation",
+      "mutation_note": "45 near-identical equations with thin prose in ONE chapter only",
+      "passed": true,
+      "checks": {
+        "fail_expectation": true,
+        "required_codes": true,
+        "any_of_codes": true
+      },
+      "failed_gates": [],
+      "criticals": [],
+      "codes_found": [
+        "FORMULA_INFLATION_SUSPECTED",
+        "PDF_NOT_BUILT",
+        "SYMBOL_TABLE_SMALL"
+      ]
+    },
+    {
+      "id": "EV09-missing-visualization",
+      "mutation_note": "all figure/table environments and registry entries removed",
+      "passed": true,
+      "checks": {
+        "fail_expectation": true,
+        "required_codes": true,
+        "any_of_codes": true
+      },
+      "failed_gates": [
+        "visual_evidence"
+      ],
+      "criticals": [
+        [
+          "visual_evidence",
+          "PAPER_WITHOUT_VISUALS"
+        ]
+      ],
+      "codes_found": [
+        "PAPER_WITHOUT_VISUALS",
+        "PDF_NOT_BUILT",
+        "SYMBOL_TABLE_SMALL",
+        "VISUAL_EVIDENCE_INSUFFICIENT"
+      ]
+    },
+    {
+      "id": "EV10-excellent-compact-paper",
+      "mutation_note": "base untouched",
+      "passed": true,
+      "checks": {
+        "fail_expectation": true,
+        "required_codes": true,
+        "any_of_codes": true
+      },
+      "failed_gates": [],
+      "criticals": [],
+      "codes_found": [
+        "PDF_NOT_BUILT",
+        "SYMBOL_TABLE_SMALL"
+      ]
+    }
+  ]
+}

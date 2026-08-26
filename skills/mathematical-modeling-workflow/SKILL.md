@@ -148,6 +148,47 @@ problem + paper + evidence only — **never the writer's self-assessment**
 If a renderer is unavailable, the Research Core stays valid; mark
 `DEGRADED`. Microsoft Word is never a hard dependency.
 
+## v0.2 Paper Production Kernel（论文生产升级核心）
+
+从 v0.2 起，论文不再"写完即过"。任何章节被标记 `PASS`/`VERIFIED` 之前，
+必须通过**确定性内容门**（详见 `references/paper-production.md`）。门的判定
+是结构性的（计数/存在性/链接），不假装理解数学；"数学是否对"由台账与
+人工审阅负责。
+
+运行方式（对 `state/` + `paper/latex/` + `paper/word/` 一体化判定）：
+
+```
+ommw audit-paper     # 9 类内容门 + 密度报告，落盘 audits/；有 CRITICAL 则 exit 1
+ommw quality-gate    # 12 维 100 分评分卡；critical 一票否决 => BLOCKED
+ommw paper-contract  # 初始化 state/paper-contract.yaml（每章公式下限等）
+```
+
+硬规则（v0.2）：
+
+1. **摘要硬门**：双格式摘要同时缺失 = `ABSTRACT_MISSING` CRITICAL，论文直接
+   BLOCKED，任何后续步骤不得继续（缺失=CRITICAL FAILURE）。
+2. **公式充分性**：模型章须满足 contract 的 `min_display_equations`（默认 2）；
+   公式堆砌（>40 个 display 且散文 <200 词）标记 `FORMULA_INFLATION_SUSPECTED`。
+3. **可视证据**：每个核心问题章至少 1 个图/表/算法资产；全篇 0 资产 =
+   `PAPER_WITHOUT_VISUALS` CRITICAL。
+4. **图文耦合**：`\label{fig:*}` 必须被正文 `\ref`；注册表有而论文不含的图 =
+   `ORPHAN_FIGURE_ASSET`。
+5. **实验充分性**：论文出现提升百分比断言必须带 R-ID 锚点或台账值匹配，否则
+   `UNSUPPORTED_CLAIM`。
+6. **叙事主线**：`state/question-dependency-map.yaml` 声明的章间依赖必须有
+   共享的证据 token（R/F/C/T-ID 或 label 定义-引用对）。
+7. **排版审计**：真实编译日志 overfull >15pt、undefined refs、Missing character
+   计入 gate（log 中的小数 pt 会被正确解析）。
+8. **评分卡一票否决**：任何 CRITICAL 直接 BLOCKED，不看总分（§62）。
+9. **空台账=空验证**：台账为空但论文报告数值/结论 → CRITICAL
+   `EXPERIMENT_EVIDENCE_MISSING`；论文数字必须能回溯台账。
+10. **章节词数下限**：全篇有效词 < 模型章数×250 → `PAPER_CONTENT_INSUFFICIENT`
+    CRITICAL。词数只统计**散文**（公式/注释剔除）。
+
+模板：比赛模板经真实导入管线审计后进
+`templates/template-registry.json`（只读原件 + sha256；"verified" 仅在
+真实 xelatex 编译产出 PDF 后写入）。`ommw template-select` 按赛事/语言选择。
+
 ## Final status block (always emit this)
 
 ```
@@ -158,11 +199,13 @@ CITATIONS:   VERIFIED | FAILED
 LATEX:       VERIFIED | FAILED | NOT REQUESTED | DEGRADED
 WORD:        VERIFIED | FAILED | NOT REQUESTED | DEGRADED
 VISUAL_QA:   VERIFIED | NOT_VERIFIED | NOT_REQUESTED
+PAPER_GATES: VERIFIED | FAILED | NOT_RUN      (v0.2: run_all_paper_gates 全绿=VERIFIED)
 OVERALL:     VERIFIED | FAILED
 ```
 
 Never report `VERIFIED` for something you did not actually check. If unsure,
-say `NOT VERIFIED`.
+say `NOT VERIFIED`. From v0.2, `PAPER_GATES` FAILED (any CRITICAL) forces
+`OVERALL: FAILED` regardless of every other row.
 
 ## Capability negotiation
 
@@ -181,6 +224,12 @@ returns PASS/WARN/FAIL per layer (CORE/PYTHON/AGENT/LATEX/WORD/NETWORK/PROVIDERS
 - `references/citations.md` — metadata vs claim verification, offline mode
 - `references/competition-compliance.md` — v1.0: modes, page budget, AI usage, gates
 - `references/experiment-lab.md` — v1.0: experiment lifecycle, validation, benchmarks
+- `references/paper-production.md` — v0.2: Paper Production Kernel（门、评分卡、BLOCKED 语义）
+- `references/abstract.md` — v0.2: 摘要硬门与写作规范
+- `references/math-density.md` — v0.2: 公式充分性双向检测（过稀/堆砌）
+- `references/experiment-evidence.md` — v0.2: 实验充分性门与 R-ID 锚点
+- `references/visualization.md` — v0.2: 可视证据门、图文耦合、排版审计
+- `references/judge-policy.md` — v0.2: 评分卡维度与临界点（critical 一票否决）
 
 ## v1.0 nine-layer architecture (deterministic parts live in `src/ommw/`)
 

@@ -30,8 +30,15 @@ def test_no_absolute_machine_paths_in_core() -> None:
     root = _core_root()
     offenders: list[str] = []
     for d in CORE_DIRS:
-        for p in (root / d).rglob("*"):
+        base = root / d
+        for p in base.rglob("*"):
             if p.is_file() and p.suffix in (".py", ".toml", ".yaml", ".yml", ".tex", ".md"):
+                # templates/local/ holds THIRD-PARTY user template copies
+                # (raw/staging/normalized). Their embedded machine paths are
+                # import data, not OMMW core source; the template pipeline
+                # audits and reports them instead (known_issues).
+                if d == "templates" and "local" in p.relative_to(base).parts[:1]:
+                    continue
                 try:
                     text = p.read_text(encoding="utf-8")
                 except Exception:

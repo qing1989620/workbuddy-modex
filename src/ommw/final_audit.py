@@ -75,6 +75,22 @@ def final_audit(project: ProjectPaths) -> VerifyReport:
             for name in (".env", "config.local.toml"):
                 if (sub / name).exists():
                     rep.add("HIGH", "submission:forbidden-file", f"submission contains {name}", str(sub))
+
+    # 14. Paper Production Kernel gates (v0.2): abstract / placeholders /
+    # formula density / visual evidence / coupling / experiment sufficiency /
+    # narrative / symbols / result consistency. These make the demo4 failure
+    # mode (a placeholder-only paper) structurally impossible to pass.
+    from .paper import run_all_paper_gates, load_contract
+    contract = load_contract(project)
+    options = contract.gate_options() if contract else None
+    gate_reports = run_all_paper_gates(project, options)
+    for gname, grep in gate_reports.items():
+        for f in grep.findings:
+            sev = f.severity
+            # downgrade LOW noise inside the 13-dimension view; keep codes stable
+            if sev == "LOW":
+                continue
+            rep.add(sev, f"paper:{f.code}", f"[{gname}] {f.message}", f.location or gname)
     return rep
 
 

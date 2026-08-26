@@ -168,3 +168,39 @@ Modifiers: mode=latex|word|dual; rigor=quick|strict|competition|research; --offl
 - README quickstart works: VERIFIED (doctor/smoke/init/render executed)
 - Doctor works: VERIFIED
 - No unresolved CRITICAL finding: VERIFIED
+
+---
+
+## v0.2 Paper Production Kernel (2026-08-26)
+
+Honesty rule maintained: only actually-executed items are VERIFIED.
+
+- Paper Production Kernel (contract/density/gates/scorecard): VERIFIED
+  (`src/ommw/paper/`, `ommw doctor` check `PAPER:kernel` PASS)
+- demo4 postmortem (audits/paper-production-postmortem.md): VERIFIED
+  (empty-ledger vacuous pass root-caused; 4 CRITICAL regression reproduced)
+- Upgrade baseline (upgrade-baseline.md): VERIFIED (KEEP/IMPROVE/NEW/… map)
+- 10 paper-production evals (evals/paper-production/): VERIFIED (10/10 PASS,
+  eval-report.json)
+- Smoke test with 5 negative injections: VERIFIED (OVERALL PASS, all caught)
+- pytest full suite: VERIFIED (46/46 PASS)
+- CUMCM template import (cumcmthesis, CJK main file): VERIFIED
+  (real xelatex compile PASS, 5-page stress demo PASS)
+- MCM/ICM template import (mcmthesis): VERIFIED
+  (real xelatex compile PASS, bibtex completion pass, 4-page stress demo PASS)
+- Template registry + roles + comparison report: VERIFIED
+  (template-registry.json, templates/local/reports/*)
+- Doctor: VERIFIED (PAPER:kernel / TEMPLATES:local-registry PASS;
+  PAPER:production-evals PASS after evals landed)
+- Master skill routing + 6 v0.2 policy references: VERIFIED (written; symlink
+  `~/.workbuddy/skills/mathematical-modeling-workflow-ommw` intact)
+- DOCX renderer: still NOT VERIFIED (pandoc absent — unchanged from v0.1;
+  non-blocking, Word pipeline DEGRADED)
+
+### v0.2 open risks
+- Template "verified" reflects compile only; template quality beyond
+  compilability (e.g. layout aesthetics) is demo-covered, not judged.
+- pandoc/LibreOffice absent => Word side not e2e-verified on this machine.
+- Gate thresholds (250 words, min 2 equations, 88 score) are engineering
+  defaults; calibrate against real papers over time.
+
