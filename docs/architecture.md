@@ -77,9 +77,46 @@ Renderer failure is never research failure. `RESEARCH_VERIFIED + LATEX_FAILED +
 WORD_VERIFIED` is legal. All degradation is recorded in `progress.json` and
 surfaced in the final status block — never silently downgraded.
 
+## v1.0: Mathematical Modeling Research Operating System
+
+v1.0 organizes the core into nine layers. Deterministic engines live in
+`src/ommw/`; judgment stays in the agent workflow (Rule 112).
+
+```
+Layer 1  Competition Compliance  src/ommw/competition/
+           profile detect/build/cache (official rules first), LIVE/TRAINING/
+           REVIEW/RESEARCH modes, LIVE search gate, AI usage ledger,
+           page budget (official > user > default)
+Layer 3  Data Intelligence       src/ommw/data_engine/
+           data audit (schema/missing/duplicates/range/units/outliers/
+           impossible values), auto spec inference, audit report
+Layer 4  Model Discovery         src/ommw/modeling.py
+           problem-type router; baseline always present; no algorithm soup
+Layer 5  Experiment Lab          src/ommw/experiment_lab/
+           experiment.yaml pre-registration, portfolio planner (Rule 35),
+           runner persisting result.json/metrics.csv/predictions.csv
+Layer 6  Evidence & Verification src/ommw/validation/
+           result validator (unit/range/statistical/reproducibility),
+           independent sanity checks (closed-form vs numerical)
+Layer 10 Benchmarks              src/ommw/benchmarks/
+           13 negative cases + Smoke A (CUMCM) + Smoke B (MCM/ICM)
+Layers 2/7/8/9 (research intelligence, visualization lab, paper factory,
+publishing) are agent-driven over these engines; the Research Core ledgers
+remain the single source of truth.
+```
+
+New project state files: `state/competition-profile.yaml`,
+`state/ai_usage.jsonl`, `state/experiment-plan.json`, `state/model-candidates.json`,
+`state/innovation-ledger.jsonl`, `experiment_lab/<id>/` artifacts.
+
+New CLI commands (deterministic): `competition`, `audit-data`, `models`,
+`plan-experiments`, `run-experiment`, `validate-results`, `ai-report`,
+`judge`, `benchmark`, `reproduce`.
+
 ## What OMMW is NOT
 
 Not 50 markdown prompts (real Python, schemas, validators, renderers, tests, CI).
 Not over-engineered (no DB server, web server, microservices). Not a prize
 guarantee (award-oriented engineering standard). Not a place for restrictive
-third-party source inside the MIT core.
+third-party source inside the MIT core. Benchmarks are capability checks, not
+award predictors.

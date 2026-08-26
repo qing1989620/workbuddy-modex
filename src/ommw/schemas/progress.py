@@ -11,28 +11,59 @@ from pydantic import BaseModel, Field
 
 
 class Stage(str, Enum):
+    """v1.0 Research Operating System state machine (backward compatible with v0.1).
+
+    Added stages (v1.0): ENVIRONMENT_DISCOVERY, COMPETITION_DISCOVERY,
+    COMPLIANCE_CHECK, PROBLEM_INGESTION, RESEARCH_PLAN, DATA_DISCOVERY,
+    DOMAIN_RESEARCH, EXPERIMENT_PLAN, EXPERIMENT_EXECUTION,
+    STATISTICAL_VALIDATION, MODEL_SELECTION, CLAIM_SYNTHESIS,
+    GLOBAL_CONSISTENCY, COMPETITION_JUDGE, SUBMISSION_GATE, VERIFIED.
+    """
+
     received = "RECEIVED"
+    environment_discovery = "ENVIRONMENT_DISCOVERY"
+    competition_discovery = "COMPETITION_DISCOVERY"
+    compliance_check = "COMPLIANCE_CHECK"
+    problem_ingestion = "PROBLEM_INGESTION"
     discovery = "DISCOVERY"
     competition_profile = "COMPETITION_PROFILE"
     problem_decomposition = "PROBLEM_DECOMPOSITION"
+    research_plan = "RESEARCH_PLAN"
+    data_discovery = "DATA_DISCOVERY"
     data_audit = "DATA_AUDIT"
+    domain_research = "DOMAIN_RESEARCH"
     literature_research = "LITERATURE_RESEARCH"
     assumptions = "ASSUMPTIONS"
     model_candidates = "MODEL_CANDIDATES"
     baseline = "BASELINE"
+    baseline_design = "BASELINE_DESIGN"
     model_screening = "MODEL_SCREENING"
+    mathematical_formulation = "MATHEMATICAL_FORMULATION"
     formulation = "FORMULATION"
+    experiment_plan = "EXPERIMENT_PLAN"
     implementation = "IMPLEMENTATION"
     experiment = "EXPERIMENT"
+    experiment_execution = "EXPERIMENT_EXECUTION"
     validation = "VALIDATION"
+    result_validation = "RESULT_VALIDATION"
+    statistical_validation = "STATISTICAL_VALIDATION"
     robustness = "ROBUSTNESS"
+    robustness_analysis = "ROBUSTNESS_ANALYSIS"
+    model_selection = "MODEL_SELECTION"
     interpretation = "INTERPRETATION"
+    claim_synthesis = "CLAIM_SYNTHESIS"
     paper_blueprint = "PAPER_BLUEPRINT"
     chapter_loop = "CHAPTER_LOOP"
+    global_consistency = "GLOBAL_CONSISTENCY"
     global_audit = "GLOBAL_AUDIT"
+    competition_judge = "COMPETITION_JUDGE"
     render = "RENDER"
+    format_render = "FORMAT_RENDER"
     output_qa = "OUTPUT_QA"
+    visual_qa = "VISUAL_QA"
+    submission_gate = "SUBMISSION_GATE"
     final_verify = "FINAL_VERIFY"
+    verified = "VERIFIED"
 
     @classmethod
     def ordered(cls) -> list["Stage"]:

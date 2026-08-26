@@ -32,6 +32,8 @@ jobs:
         run: uv run pytest -q
         env:
           PYTEST_ADDOPTS: ""
+      - name: Benchmark suite (negative cases + smoke A/B)
+        run: uv run ommw benchmark
 
   # Full integration: tiny modeling example + LaTeX/DOCX smoke (nightly/release/main)
   integration:

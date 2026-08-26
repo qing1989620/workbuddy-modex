@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "ommw"
-version = "0.1.0"
+version = "1.0.0-rc1"
 description = "Open Mathematical Modeling Workflow: a portable, local-first, anti-hallucination workflow for competition mathematical modeling with LaTeX + Word dual output."
 readme = "README.md"
 license = "MIT"
@@ -32,10 +32,15 @@ dependencies = [
 ]
 
 [project.optional-dependencies]
+plot = [
+  "matplotlib>=3.8",
+  "numpy>=1.26",
+]
 dev = [
   "pytest>=8.2",
   "pytest-cov>=5.0",
   "ruff>=0.5",
+  "ommw[plot]",
 ]
 
 [project.scripts]
