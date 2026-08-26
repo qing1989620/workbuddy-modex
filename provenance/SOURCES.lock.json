@@ -25,10 +25,19 @@
       "per_skill_license_varies": true,
       "vendored": false,
       "skills_declared_for_fetch": [
-        "scientific-writing", "scientific-critical-thinking", "literature-review",
-        "citation-management", "exploratory-data-analysis", "statistical-analysis",
-        "experimental-design", "peer-review", "sympy", "uncertainty-and-units",
-        "statsmodels", "scikit-learn", "networkx"
+        "scientific-writing",
+        "scientific-critical-thinking",
+        "literature-review",
+        "citation-management",
+        "exploratory-data-analysis",
+        "statistical-analysis",
+        "experimental-design",
+        "peer-review",
+        "sympy",
+        "uncertainty-and-units",
+        "statsmodels",
+        "scikit-learn",
+        "networkx"
       ],
       "fetched": false,
       "note": "PIN DECLARED, NOT FETCHED. Skills listed for future fetch-on-demand at pinned commit 36d8f13; per-skill license will be recorded when actually fetched. No bulk vendor. Trust level AUDITED_VENDOR applies to the repo MIT license, NOT to per-skill verification (which has not occurred)."
@@ -50,6 +59,33 @@
       "upstream_license": "MIT",
       "vendored": false,
       "note": "arXiv/IEEEtran-specific. Discipline borrowed (issue-driven, no-prose-before-evidence, compile-or-not-done) and re-implemented for competition modeling. Not reused."
+    },
+    {
+      "id": "cumcm-template-2026",
+      "kind": "template-provider",
+      "trust": "EXTERNAL_OPTIONAL",
+      "upstream": "https://github.com/GaoZx13470/cumcm-template-2026",
+      "license": "PENDING_AUDIT",
+      "vendored": false,
+      "note": "Template provider, NOT in MIT core. Audit license/commit/fonts/BibTeX before any use. Official CUMCM rules always override."
+    },
+    {
+      "id": "mcmthesis",
+      "kind": "template-provider",
+      "trust": "EXTERNAL_OPTIONAL",
+      "upstream": "https://github.com/latexstudio-org/mcmthesis",
+      "license": "LPPL",
+      "vendored": false,
+      "note": "MCM template provider (LPPL). COMAP official rules re-read every year; never assume template defaults equal current COMAP rules."
+    },
+    {
+      "id": "sci-box",
+      "kind": "visualization-reference",
+      "trust": "REFERENCE",
+      "upstream": "https://github.com/jihe520/sci-box",
+      "license": "PENDING_AUDIT",
+      "vendored": false,
+      "note": "Scientific figure patterns as reference only. Code NOT copied into public core while license unclear."
     }
   ]
 }

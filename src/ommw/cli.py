@@ -371,13 +371,16 @@ def migrate(
 def health(
     project: Path = typer.Option(Path("."), "--project", "-p"),
 ) -> None:
-    """Project health: stale results, unresolved findings, broken figures."""
+    """Project health (v1.0, Rule 131): stale/claims/figures/citations/AI log."""
+    from .health import health_check
     pp, _ = _load_project(project)
-    rep = research_verify(pp)
+    rep = health_check(pp)
     high = [f for f in rep.findings if f.severity in ("CRITICAL", "HIGH")]
     console.print(f"Open CRITICAL/HIGH findings: [bold {'red' if high else 'green'}]{len(high)}[/bold {'red' if high else 'green'}]")
     for f in high:
-        console.print(f"  {f.severity} {f.code}: {f.message}")
+        console.print(f"  {f.severity} {f.code}: {f.message} @{f.location}")
+    if rep.findings:
+        console.print(f"total findings: {len(rep.findings)}")
 
 
 @app.command()
@@ -657,6 +660,156 @@ def reproduce(
         n += len(vrep.findings)
     console.print(f"  result-validation: {n} findings")
     console.print("REPRODUCE: done")
+
+
+# ---------------------------------------------------------------------------
+# v1.0 Layer 7/8: visualization, paper factory, knowledge, final audit
+# ---------------------------------------------------------------------------
+
+@app.command()
+def plot(
+    project: Path = typer.Option(Path("."), "--project", "-p"),
+    figure_id: str = typer.Option("F-001", "--figure", "-f"),
+    question: str = typer.Option("", "--question", "-q"),
+    claim: str = typer.Option("", "--claim", "-c"),
+    data: str = typer.Option("", "--data", "-d"),
+    why: str = typer.Option("", "--why", "-w"),
+    context: str = typer.Option("data", "--context", help="data|model|experiment"),
+    claim_type: str = typer.Option("comparison", "--claim-type"),
+) -> None:
+    """Figure planner: pre-register a figure with Q/C/D/Why (Rule 50)."""
+    from .visualization import plan_figure, validate_figure_plan
+    pp, _ = _load_project(project)
+    fp = plan_figure(figure_id=figure_id, question=question, claim=claim,
+                     data=data, why=why, context=context, claim_type=claim_type)
+    rep = validate_figure_plan(fp)
+    for f in rep.findings:
+        console.print(f"  {f.severity}: {f.code} {f.message}")
+    console.print(f"FigurePlan: {fp.figure_id} type={fp.figure_type} output={fp.output}  "
+                  f"valid={'YES' if rep.passed else 'NO (fill missing fields)'}")
+    if rep.passed:
+        from .schemas import FigureRecord
+        from . import atomic
+        atomic.append_jsonl(pp.figures_index, FigureRecord(
+            figure_id=fp.figure_id, generator="ommw plot", data=fp.data,
+            result_ids=[fp.claim], caption="", section="", output=fp.output,
+        ).model_dump(mode="json"))
+        console.print("registered to figures.jsonl")
+
+
+@app.command(name="paper-plan")
+def paper_plan(
+    project: Path = typer.Option(Path("."), "--project", "-p"),
+    problem_types: str = typer.Option("prediction", "--problem-types", help="comma-separated"),
+    title: str = typer.Option("", "--title"),
+) -> None:
+    """Paper architect: build a dynamic blueprint + chapter contracts (Rule 64, 67)."""
+    from .paper_factory import build_blueprint, make_chapter_contract
+    from . import atomic
+    pp, proj = _load_project(project)
+    bp = build_blueprint(title=title or proj.title, competition=proj.competition,
+                         language=proj.language,
+                         problem_types=[t.strip() for t in problem_types.split(",")],
+                         page_limit=0)
+    console.print(f"Blueprint: {bp.title} [{bp.competition}] {len(bp.chapters)} chapters")
+    for ch in bp.chapter_ids():
+        contract = make_chapter_contract(ch, question=f"Q: {ch}", purpose=f"covers {ch}")
+        bp.contracts[ch] = contract
+        console.print(f"  - {ch}")
+    atomic.write_json(pp.state_dir / "paper-blueprint.json",
+                      {"chapters": bp.chapters,
+                       "contracts": {k: v.__dict__ for k, v in bp.contracts.items()}})
+    console.print("saved: state/paper-blueprint.json")
+
+
+@app.command()
+def chapter(
+    project: Path = typer.Option(Path("."), "--project", "-p"),
+    chapter_id: str = typer.Argument(..., help="chapter id"),
+    question: str = typer.Option("", "--question"),
+    claims: str = typer.Option("", "--claims", help="comma-separated claim ids"),
+    results: str = typer.Option("", "--results", help="comma-separated result ids"),
+) -> None:
+    """Chapter contract: bind evidence to a chapter (Rule 67)."""
+    from .paper_factory import make_chapter_contract
+    from . import atomic
+    pp, _ = _load_project(project)
+    contract = make_chapter_contract(
+        chapter_id, question=question,
+        claims=[c for c in claims.split(",") if c],
+        results=[r for r in results.split(",") if r],
+    )
+    atomic.write_json(pp.state_dir / f"chapter-{chapter_id}.json", contract.__dict__)
+    console.print(f"Chapter contract {chapter_id}: claims={contract.claims} results={contract.results}")
+
+
+@app.command()
+def knowledge(
+    project: Path = typer.Option(Path("."), "--project", "-p"),
+    action: str = typer.Option("list", "--action", help="list|extract"),
+    source: str = typer.Option("", "--source", help="paper id/path"),
+    problem_type: str = typer.Option("", "--problem-type"),
+    model_family: str = typer.Option("", "--model-family"),
+    why: str = typer.Option("", "--why"),
+    baseline: str = typer.Option("", "--baseline"),
+    innovation: str = typer.Option("", "--innovation"),
+) -> None:
+    """Knowledge base: list patterns or extract structured knowledge (Rule 16-17)."""
+    from .knowledge import extract_knowledge
+    from .paths import core_root
+    pp, _ = _load_project(project)
+    kb = core_root() / "knowledge_base"
+    if action == "list":
+        patterns = sorted(p.stem for p in (kb / "problem_patterns").glob("*.json")) if (kb / "problem_patterns").exists() else []
+        models = sorted(p.stem for p in (kb / "model_patterns").glob("*.md")) if (kb / "model_patterns").exists() else []
+        console.print(f"knowledge_base patterns: {patterns or '(none extracted yet)'}")
+        console.print(f"model_patterns docs: {models}")
+    else:
+        if not all((source, problem_type, model_family)):
+            console.print("[red]extract requires --source --problem-type --model-family[/red]")
+            raise typer.Exit(1)
+        entry = extract_knowledge(source=source, problem_type=problem_type,
+                                  model_family=model_family, why_model_selected=why,
+                                  baseline=baseline, innovation=innovation)
+        from .knowledge import save_knowledge_entry
+        out = save_knowledge_entry(kb, entry)
+        console.print(f"knowledge extracted -> {out}")
+
+
+@app.command(name="final-audit")
+def final_audit(
+    project: Path = typer.Option(Path("."), "--project", "-p"),
+) -> None:
+    """Run the 13-dimension Final Audit (Rule 138) + paper manifest (Rule 136)."""
+    from .final_audit import final_audit as _audit, paper_manifest
+    pp, _ = _load_project(project)
+    rep = _audit(pp)
+    for f in rep.findings:
+        color = {"CRITICAL": "red", "HIGH": "red", "MEDIUM": "yellow", "LOW": "dim"}[f.severity]
+        console.print(f"[{color}]{f.severity:<8}[/{color}] {f.code:<30} {f.message}")
+    critical = [f for f in rep.findings if f.severity == "CRITICAL"]
+    high = [f for f in rep.findings if f.severity == "HIGH"]
+    console.print(f"\nFINAL AUDIT: CRITICAL={len(critical)} HIGH={len(high)} "
+                  f"{'PAPER VERIFIED' if not critical and not high else 'NOT VERIFIED'}")
+    manifest = paper_manifest(pp)
+    console.print(f"paper-manifest.json written ({len(manifest)} fields)")
+    if critical or high:
+        raise typer.Exit(1)
+
+
+@app.command(name="material-manifest")
+def material_manifest(
+    project: Path = typer.Option(Path("."), "--project", "-p"),
+) -> None:
+    """Supporting-material manifest: every referenced artifact must exist (Rule 100)."""
+    from .final_audit import supporting_material_manifest
+    pp, _ = _load_project(project)
+    m = supporting_material_manifest(pp)
+    missing = [f for f in m["figures"] if not f["exists"]]
+    missing_r = [r for r in m["results"] if not r["artifact_exists"]]
+    console.print(f"supporting-material-manifest.json: {len(m['code'])} code, {len(m['data'])} data, "
+                  f"{len(m['figures'])} figures, {len(m['results'])} results")
+    console.print(f"  missing figure outputs: {len(missing)}  missing result artifacts: {len(missing_r)}")
 
 
 if __name__ == "__main__":
