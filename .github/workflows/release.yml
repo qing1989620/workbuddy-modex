@@ -8,21 +8,30 @@ on:
 permissions:
   contents: write
 
+# Release-gate runs on Ubuntu only. Windows coverage for unit + integration
+# is provided by ci.yml's lint-test + integration jobs on every push/PR.
+# The release-gate's job is to be the *strict* quality bar: doctor must PASS
+# (not WARN), smoke --mode dual must PASS. That requires TeX Live + Pandoc
+# installed, which is straightforward on Ubuntu but awkward on Windows runner.
 jobs:
   release-gate:
-    runs-on: ${{ matrix.os }}
-    strategy:
-      matrix:
-        os: [ubuntu-latest, windows-latest]
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
         with:
           python-version: "3.13"
       - run: pip install uv && uv sync --extra dev
+      - name: Install TeX Live (LaTeX engine for real compile)
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y texlive-latex-extra texlive-xetex texlive-fonts-recommended latexmk
+      - name: Install Pandoc (Word mode engine)
+        run: sudo apt-get install -y pandoc
       - name: Full release gate
         shell: bash
         run: |
+          set -e
           uv run pytest -q
           uv run ommw doctor
           uv run ommw smoke-test --dest "$RUNNER_TEMP/ommw_smoke" --mode dual
