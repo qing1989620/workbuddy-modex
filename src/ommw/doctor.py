@@ -160,6 +160,35 @@ def run() -> DoctorReport:
     rep.add(Check("PROVIDERS:scientific-skills", STATUS_PASS if ss.enabled else STATUS_PASS,
                   "enabled" if ss.enabled else "disabled (fetch-on-demand)"))
 
+    # --- v1.0: RESEARCH OS components (Rule 130) ---
+    root = core_root()
+    comp = root / "src" / "ommw" / "competition"
+    rep.add(Check("RESEARCH:competition-kernel",
+                  STATUS_PASS if (comp / "compliance.py").exists() else STATUS_FAIL,
+                  "ok" if (comp / "compliance.py").exists() else "missing competition module"))
+    exp = root / "src" / "ommw" / "experiment_lab"
+    rep.add(Check("RESEARCH:experiment-lab",
+                  STATUS_PASS if (exp / "planner.py").exists() else STATUS_FAIL,
+                  "ok" if (exp / "planner.py").exists() else "missing experiment lab"))
+    val = root / "src" / "ommw" / "validation"
+    rep.add(Check("RESEARCH:result-validation",
+                  STATUS_PASS if (val / "validator.py").exists() else STATUS_FAIL,
+                  "ok" if (val / "validator.py").exists() else "missing validation engine"))
+    ben = root / "src" / "ommw" / "benchmarks"
+    rep.add(Check("RESEARCH:benchmarks",
+                  STATUS_PASS if (ben / "negative_cases.py").exists() else STATUS_WARN,
+                  "ok" if (ben / "negative_cases.py").exists() else "missing benchmark suite"))
+    # Templates (competition profiles).
+    tpl = root / "templates" / "competition"
+    if tpl.exists() and any(tpl.glob("*/profile.toml")):
+        rep.add(Check("TEMPLATES:competition", STATUS_PASS,
+                      ", ".join(sorted(p.parent.name for p in tpl.glob("*/profile.toml")))))
+    else:
+        rep.add(Check("TEMPLATES:competition", STATUS_WARN, "no competition profiles"))
+    # Schemas.
+    sch = root / "schemas"
+    n_sch = len(list(sch.glob("*.schema.json"))) if sch.exists() else 0
+    rep.add(Check("SCHEMAS:json", STATUS_PASS if n_sch >= 4 else STATUS_WARN, f"{n_sch} json schemas"))
     return rep
 
 

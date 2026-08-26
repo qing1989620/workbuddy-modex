@@ -113,7 +113,28 @@ WARN（如缺 LibreOffice 导致 DOCX 视觉 QA 不可用）不会让 CORE 挂�
 核心：**MIT**。见 `LICENSE`、`NOTICE`、`THIRD_PARTY_NOTICES.md`、
 `provenance/SOURCES.lock.json`。受限第三方源码绝不重新授权进 MIT 核心。
 
+## v1.0.0-rc1（Research Operating System）
+
+v1.0 把 OMMW 从"辅助工具"升级为"数学建模研究操作系统"：九层架构
+（竞赛合规 → 研究 → 数据 → 模型发现 → 实验实验室 → 证据验证 → 可视化 →
+论文工厂 → 出版提交），确定性引擎在 `src/ommw/`，研究判断由 Agent 工作流驱动。
+
+新增（真实代码 + 测试）：
+- **竞赛合规**（`ommw competition` / `ommw judge`）：比赛 profile 检测/构建/官方规则缓存；
+  LIVE/TRAINING 模式；LIVE 模式当届解题内容搜索硬门控；页面预算
+  （官方规则 > 用户偏好 > 默认）；AI 使用账本（`ommw ai-report` 从真实日志生成声明）。
+- **数据审计**（`ommw audit-data`）：schema/缺失/重复/范围/单位/越界值自动检查 + 报告。
+- **模型发现**（`ommw models`）：问题类型路由；baseline 强制；禁止算法拼盘。
+- **实验实验室**（`ommw plan-experiments` / `ommw run-experiment`）：experiment.yaml
+  预注册、组合规划器、结果落盘（result.json/metrics.csv/predictions.csv），聊天文本不是事实源。
+- **结果验证**（`ommw validate-results`）：单位/范围/统计诚实/可复现检查 + 独立复核。
+- **基准**（`ommw benchmark`）：13 个负面用例（假引用/孤立数字/错误单位/断图/过期实验/
+  页数违规/缺 AI 声明/LIVE 搜索门控等）+ Smoke A（CUMCM 风格）+ Smoke B（MCM/ICM 风格）。
+  基准是内部能力检查，**不是获奖预测器**。
+- **状态机 v1.0**：扩展到 COMPLIANCE_CHECK/EXPERIMENT_PLAN/COMPETITION_JUDGE/
+  SUBMISSION_GATE/VERIFIED 等；失败走 FAILED→DIAGNOSE→FIX→REVERIFY。
+
 ## 状态
 
-v0.1 — 基础。见 `ROADMAP.md`、`COMPATIBILITY.md`。不保证获奖；目标是
-**面向奖项的工程标准**。
+v1.0.0-rc1（候选版；未达全部验收标准，不称 v1.0）。v0.1 已发布为
+Portable Core Alpha。不保证获奖；目标是**面向奖项的工程标准**。

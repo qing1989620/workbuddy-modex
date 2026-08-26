@@ -423,5 +423,241 @@ def smoke_test(
         raise typer.Exit(1)
 
 
+# ---------------------------------------------------------------------------
+# v1.0 Research Operating System commands (deterministic parts; complex
+# research judgment remains in the agent workflow — Rule 112)
+# ---------------------------------------------------------------------------
+
+@app.command()
+def competition(
+    project: Path = typer.Option(Path("."), "--project", "-p"),
+    text: str = typer.Option("", "--text", help="problem text for detection"),
+    live: bool = typer.Option(False, "--live", help="mark as LIVE contest mode"),
+    name: str = typer.Option("", "--competition", help="force competition name (cumcm/mcm_icm/graduate/generic)"),
+) -> None:
+    """Detect / build / save the competition profile (Layer 1)."""
+    from .competition import build_profile, detect_competition, save_profile
+    pp, _ = _load_project(project)
+    det = detect_competition(text, live=live)
+    if name:
+        det.competition = name
+    profile = build_profile(det)
+    save_profile(pp, profile)
+    tbl = Table(title="Competition profile")
+    tbl.add_column("field"); tbl.add_column("value")
+    for k, v in profile.model_dump().items():
+        tbl.add_row(k, v.value if hasattr(v, "value") else str(v))
+    console.print(tbl)
+    console.print(f"\nSaved: {pp.state_dir / 'competition-profile.yaml'}")
+    console.print("[yellow]WARNING: detection is heuristic. Verify against official rules "
+                  "before locking (fetch official sources).[/yellow]")
+
+
+@app.command(name="audit-data")
+def audit_data(
+    project: Path = typer.Option(Path("."), "--project", "-p"),
+    data: str = typer.Option("", "--data", help="CSV path (default: first file in data/raw)"),
+) -> None:
+    """Run the Data Audit Engine (Layer 3, Rule 21)."""
+    from .data_engine import DataAuditSpec, audit_csv, infer_spec, write_report
+    pp, _ = _load_project(project)
+    if not data:
+        raws = sorted(pp.data_raw.glob("*.csv"))
+        if not raws:
+            console.print("[red]No CSV found in data/raw.[/red]")
+            raise typer.Exit(1)
+        data = str(raws[0])
+    # Auto-infer common constraints (counts>=0, rates in [0,1]); agent refines later.
+    import csv as _csv
+    with open(data, encoding="utf-8", newline="") as _f:
+        cols = next(_csv.reader(_f))
+    spec = infer_spec(cols)
+    rep = audit_csv(Path(data), spec)
+    for f in rep.findings:
+        color = {"CRITICAL": "red", "HIGH": "red", "MEDIUM": "yellow", "LOW": "dim"}[f.severity]
+        console.print(f"[{color}]{f.severity:<8}[/{color}] {f.code:<24} {f.message}")
+    out = pp.data_processed / "data-audit-report.md"
+    write_report(rep, out)
+    console.print(f"\nDATA AUDIT: {'PASS' if rep.passed else 'FINDINGS'}  report={out}")
+
+
+@app.command()
+def models(
+    project: Path = typer.Option(Path("."), "--project", "-p"),
+    problem_type: str = typer.Option("prediction", "--problem-type", help="problem family for routing"),
+    show: bool = typer.Option(True, "--show/--no-show"),
+) -> None:
+    """Model discovery routing: candidate families per problem type (Rule 29)."""
+    from .modeling import route_candidates
+    pp, _ = _load_project(project)
+    candidates = route_candidates(problem_type)
+    if show:
+        tbl = Table(title=f"Model candidates: {problem_type}")
+        tbl.add_column("model"); tbl.add_column("family"); tbl.add_column("fit")
+        tbl.add_column("cost"); tbl.add_column("reason_to_test")
+        for c in candidates:
+            tbl.add_row(c.model, c.family, c.theoretical_fit, c.computational_cost, c.reason_to_test)
+        console.print(tbl)
+    atomic.write_json(pp.state_dir / "model-candidates.json",
+                      [c.model_dump() for c in candidates])
+
+
+@app.command(name="plan-experiments")
+def plan_experiments(
+    project: Path = typer.Option(Path("."), "--project", "-p"),
+    problem_type: str = typer.Option("prediction", "--problem-type"),
+    n_models: int = typer.Option(2, "--models"),
+    complexity: str = typer.Option("medium", "--complexity", help="low|medium|high"),
+    stochastic: bool = typer.Option(False, "--stochastic"),
+    time_series: bool = typer.Option(False, "--timeseries"),
+    has_data: bool = typer.Option(True, "--data/--no-data"),
+) -> None:
+    """Plan the experiment portfolio (Rule 35)."""
+    from .experiment_lab import portfolio_for_problem
+    pp, _ = _load_project(project)
+    plans = portfolio_for_problem(problem_type, n_models=n_models,
+                                  has_data=has_data, stochastic=stochastic,
+                                  time_series=time_series, complexity=complexity)
+    tbl = Table(title=f"Experiment portfolio ({len(plans)} experiments)")
+    tbl.add_column("id"); tbl.add_column("family"); tbl.add_column("model")
+    tbl.add_column("metric"); tbl.add_column("seed")
+    for p in plans:
+        tbl.add_row(p.experiment_id, p.family, p.model, p.metric, str(p.seed or ""))
+    console.print(tbl)
+    atomic.write_json(pp.state_dir / "experiment-plan.json",
+                      [p.model_dump(mode="json") for p in plans])
+
+
+@app.command(name="run-experiment")
+def run_experiment(
+    project: Path = typer.Option(Path("."), "--project", "-p"),
+    experiment_id: str = typer.Option("E-001", "--experiment", "-e"),
+    model: str = typer.Option("linear-trend", "--model", help="built-in demo executor"),
+) -> None:
+    """Execute a planned experiment and PERSIST artifacts to disk (Rule 34)."""
+    from .experiment_lab import run_experiment as _run
+    from .schemas.experiment_lab import ExperimentPlan, ExperimentStatus
+    pp, _ = _load_project(project)
+    plan = ExperimentPlan(
+        experiment_id=experiment_id, model=model, metric="mae",
+        family="comparison", status=ExperimentStatus.planned,
+        success_condition="metric recorded and validated")
+
+    def _demo_execute(p: ExperimentPlan) -> dict:
+        """Built-in deterministic demo executor (for CLI/benchmark use)."""
+        import math
+        mae = round(abs(math.sin(hash(p.experiment_id) % 97)) / 10 + 0.2, 4)
+        return {"metrics": {"mae": mae}, "predictions": [{"t": 0, "yhat": 10.0}],
+                "result": {"mae": mae, "model": p.model}}
+
+    artifacts = _run(pp, plan, _demo_execute)
+    console.print(f"EXPERIMENT {experiment_id}: COMPLETED")
+    for a in (artifacts.result_json, artifacts.metrics_csv, artifacts.predictions_csv):
+        console.print(f"  artifact: {pp.root / a}")
+
+
+@app.command(name="validate-results")
+def validate_results(
+    project: Path = typer.Option(Path("."), "--project", "-p"),
+) -> None:
+    """Validate core results in the ledger (Rule 40)."""
+    from .validation import ResultToValidate, validate_result
+    pp, _ = _load_project(project)
+    results = atomic.read_jsonl(pp.results_path)
+    if not results:
+        console.print("No results in ledger."); return
+    total = 0
+    for r in results:
+        rv = ResultToValidate(result_id=r.get("result_id", "?"), name=r.get("name", ""),
+                              value=r.get("value", ""), unit=r.get("unit", ""),
+                              run_id=r.get("run_id", ""), data_hash=r.get("source_data_hash", ""))
+        rep = validate_result(pp, rv)
+        for f in rep.findings:
+            total += 1
+            console.print(f"  {f.severity}: {f.code} {f.message} ({r.get('result_id')})")
+    console.print(f"RESULT VALIDATION: {'PASS' if total == 0 else f'{total} findings'}")
+
+
+@app.command(name="ai-report")
+def ai_report(
+    project: Path = typer.Option(Path("."), "--project", "-p"),
+) -> None:
+    """Generate the AI-usage declaration + detail report from the REAL ledger."""
+    from .competition import generate_ai_report, list_usage, summarize
+    pp, _ = _load_project(project)
+    s = summarize(pp)
+    console.print(f"AI usage records: {s.total_records} (accepted {s.accepted}, human-reviewed {s.human_reviewed})")
+    decl, _ = generate_ai_report(pp)
+    console.print(f"Declaration: {pp.paper_dir / 'ai-usage-declaration.md'}")
+    console.print(f"Detail:      {pp.dist_dir / 'AI工具使用详情.md'}")
+    console.print("\n" + decl)
+
+
+@app.command()
+def judge(
+    project: Path = typer.Option(Path("."), "--project", "-p"),
+) -> None:
+    """Competition-judge simulation: compliance gate + research verify summary."""
+    from .competition import compliance_gate, load_profile
+    from .schemas import CompetitionProfile
+    pp, _ = _load_project(project)
+    profile = load_profile(pp) or CompetitionProfile()
+    c_rep = compliance_gate(pp, profile)
+    r_rep = research_verify(pp)
+    findings = c_rep.findings + r_rep.findings
+    critical = [f for f in findings if f.severity == "CRITICAL"]
+    high = [f for f in findings if f.severity == "HIGH"]
+    console.print(f"JUDGE SIMULATION: CRITICAL={len(critical)} HIGH={len(high)} total={len(findings)}")
+    for f in findings[:15]:
+        console.print(f"  {f.severity}: {f.code} {f.message} @{f.location}")
+    console.print("Note: internal review only; not an official scoring model.")
+
+
+@app.command()
+def benchmark(
+    only: str = typer.Option("", "--only", help="run only this case id (e.g. NEG-001, SMOKE-A)"),
+) -> None:
+    """Run the internal benchmark suite (negative cases + smoke projects)."""
+    from .benchmarks import full_suite, run_benchmark
+    cases = full_suite()
+    if only:
+        cases = [c for c in cases if c.case_id == only]
+        if not cases:
+            console.print(f"[red]Unknown case {only}[/red]"); raise typer.Exit(1)
+    rep = run_benchmark(cases)
+    console.print(rep.table())
+    if not rep.overall:
+        raise typer.Exit(1)
+
+
+@app.command()
+def reproduce(
+    project: Path = typer.Option(Path("."), "--project", "-p"),
+) -> None:
+    """Re-run the deterministic pipeline: audit-data -> research-verify -> validate."""
+    pp, _ = _load_project(project)
+    console.print("[yellow]reproduce: re-running deterministic pipeline[/yellow]")
+    raws = sorted(pp.data_raw.glob("*.csv"))
+    if raws:
+        from .data_engine import audit_csv, write_report
+        rep = audit_csv(raws[0])
+        write_report(rep, pp.data_processed / "data-audit-report.md")
+        console.print(f"  data-audit: {len(rep.findings)} findings")
+    else:
+        console.print("  data-audit: no raw CSV (skip)")
+    r_rep = research_verify(pp)
+    console.print(f"  research-verify: {'PASS' if r_rep.passed else 'FAIL'} ({len(r_rep.findings)} findings)")
+    from .validation import ResultToValidate, validate_result
+    n = 0
+    for r in atomic.read_jsonl(pp.results_path):
+        vrep = validate_result(pp, ResultToValidate(
+            result_id=r.get("result_id", "?"), value=r.get("value", ""),
+            unit=r.get("unit", ""), run_id=r.get("run_id", ""),
+            data_hash=r.get("source_data_hash", "")))
+        n += len(vrep.findings)
+    console.print(f"  result-validation: {n} findings")
+    console.print("REPRODUCE: done")
+
+
 if __name__ == "__main__":
     app()

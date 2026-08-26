@@ -133,5 +133,11 @@ re-licensed into the MIT core.
 
 ## Status
 
-v0.1 — foundation. See `ROADMAP.md` and `COMPATIBILITY.md`. Not a prize guarantee;
-targets an **award-oriented engineering standard**.
+**v1.0.0-rc1** (candidate) — Mathematical Modeling Research Operating System:
+competition compliance (LIVE/TRAINING modes, AI-usage ledger, page budget),
+data audit, model discovery, experiment lab, result validation, benchmark suite
+(13 negative cases + Smoke A/B), v1.0 state machine. v0.1 was released as
+Portable Core Alpha.
+
+Not a prize guarantee; targets an **award-oriented engineering standard**.
+Benchmarks are capability checks, not award predictors.

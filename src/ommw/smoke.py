@@ -100,7 +100,9 @@ def run_smoke(dest: Path, *, mode: str = "dual") -> bool:
                        domain="Z+", question="Q1", first_used="models").model_dump(mode="json"),
     ]})
 
-    # 7. figures/tables registries (Rule 29/30)
+    # 7. figures/tables registries (Rule 29/30). The figure file MUST exist
+    # (broken-figure gate); generate a real minimal PNG.
+    _write_minimal_png(pp.figures_dir / "forecast.png")
     atomic.append_jsonl(pp.figures_index, FigureRecord(
         figure_id="F-001", generator="code/smoke_inline.py", data=str(raw_csv),
         result_ids=["R-001", "R-002"], caption="Baseline vs regression forecast",
@@ -223,3 +225,45 @@ def _inject_and_assert_negatives(pp: ProjectPaths, restore_md: str) -> bool:
     # (c) restore proper content (full chapter so parity stays consistent)
     (pp.word_dir / "sections" / "results.md").write_text(restore_md, encoding="utf-8")
     return ok
+
+
+def _write_minimal_png(path) -> None:
+    """Write a real minimal PNG (1x1 gray) using stdlib zlib+struct.
+
+    Generates an actual image file so figure-registry gates are exercised
+    honestly without requiring matplotlib.
+    """
+    import struct
+    import zlib
+
+    def _chunk(tag: bytes, data: bytes) -> bytes:
+        return (struct.pack(">I", len(data)) + tag + data
+                + struct.pack(">I", zlib.crc32(tag + data) & 0xFFFFFFFF))
+
+    ihdr = struct.pack(">IIBBBBB", 1, 1, 8, 0, 0, 0, 0)  # 1x1 grayscale 8-bit
+    idat = zlib.compress(b"\x00\x80")  # filter byte 0 + one gray pixel
+    png = (b"\x89PNG\r\n\x1a\n" + _chunk(b"IHDR", ihdr)
+           + _chunk(b"IDAT", idat) + _chunk(b"IEND", b""))
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_bytes(png)
+
+
+def _write_minimal_png(path) -> None:
+    """Write a real minimal PNG (1x1 gray) using stdlib zlib+struct.
+
+    Generates an actual image file so figure-registry gates are exercised
+    honestly without requiring matplotlib.
+    """
+    import struct
+    import zlib
+
+    def _chunk(tag: bytes, data: bytes) -> bytes:
+        return (struct.pack(">I", len(data)) + tag + data
+                + struct.pack(">I", zlib.crc32(tag + data) & 0xFFFFFFFF))
+
+    ihdr = struct.pack(">IIBBBBB", 1, 1, 8, 0, 0, 0, 0)  # 1x1 grayscale 8-bit
+    idat = zlib.compress(b"\x00\x80")  # filter byte 0 + one gray pixel
+    png = (b"\x89PNG\r\n\x1a\n" + _chunk(b"IHDR", ihdr)
+           + _chunk(b"IDAT", idat) + _chunk(b"IEND", b""))
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_bytes(png)

@@ -81,6 +81,41 @@ def research_verify(project: ProjectPaths) -> VerifyReport:
             rep.add("HIGH", "unsupported-conclusion",
                     f"conclusion claim {cid} has status {status}", cid)
 
+    # v1.0: figure/table registries — result_ids must resolve, outputs must exist.
+    figures = atomic.read_jsonl(project.figures_index)
+    tables = atomic.read_jsonl(project.tables_index)
+    for kind, records, id_key, out_key in (
+        ("figure", figures, "figure_id", "output"),
+        ("table", tables, "table_id", "output"),
+    ):
+        for rec in records:
+            rid = rec.get(id_key, "?")
+            for r in rec.get("result_ids", []):
+                if r not in result_ids:
+                    rep.add("HIGH", "registry-unresolved-result",
+                            f"{kind} {rid} cites missing result {r}", rid)
+            out = rec.get(out_key, "")
+            if out:
+                target = project.root / out
+                if not target.exists():
+                    rep.add("HIGH", "broken-" + kind,
+                            f"{kind} {rid} output file missing: {out}", rid)
+
+    # v1.0: stale experiment check — results whose run_id maps to a STALE/FAILED
+    # experiment are themselves stale (Rule 58, 111).
+    experiments = {e.get("run_id"): e for e in atomic.read_jsonl(project.experiments_path)}
+    for r in results.values():
+        rid = r.get("result_id")
+        run_id = r.get("run_id", "")
+        if run_id and run_id in experiments:
+            estatus = experiments[run_id].get("status", "")
+            if estatus == "STALE":
+                rep.add("HIGH", "stale-result",
+                        f"result {rid} depends on STALE experiment {run_id}", rid)
+            elif estatus == "FAILED":
+                rep.add("HIGH", "failed-experiment-result",
+                        f"result {rid} depends on FAILED experiment {run_id}", rid)
+
     # Rule 68: scan paper source text for inline numbers lacking a Result ID nearby.
     for kind, base in (("latex", project.latex_dir / "sections"), ("word", project.word_dir / "sections")):
         if not base.exists():

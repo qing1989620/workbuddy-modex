@@ -1,0 +1,33 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://ommw.dev/schemas/competition-profile.schema.json",
+  "title": "OMMW competition-profile.yaml",
+  "type": "object",
+  "required": ["competition", "mode"],
+  "properties": {
+    "competition": {"type": "string"},
+    "year": {"type": ["integer", "null"]},
+    "group": {"type": "string"},
+    "problem": {"type": "string"},
+    "mode": {"enum": ["LIVE", "TRAINING", "REVIEW", "RESEARCH"]},
+    "start_time": {"type": "string"},
+    "end_time": {"type": "string"},
+    "language": {"type": "string"},
+    "paper_format": {"type": "string"},
+    "page_limit": {"type": "integer", "minimum": 0},
+    "page_limit_source": {"type": "string"},
+    "abstract_rule": {"type": "string"},
+    "toc_rule": {"type": "string"},
+    "appendix_rule": {"type": "string"},
+    "reference_rule": {"type": "string"},
+    "supporting_material_rule": {"type": "string"},
+    "ai_policy": {"type": "string"},
+    "submission_format": {"type": "array", "items": {"type": "string"}},
+    "file_size_limit": {"type": "string"},
+    "anonymization_rule": {"type": "string"},
+    "code_submission_rule": {"type": "string"},
+    "internet_rule": {"type": "string"},
+    "official_sources": {"type": "array", "items": {"type": "string"}},
+    "verification_date": {"type": "string"}
+  }
+}

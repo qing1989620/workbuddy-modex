@@ -27,7 +27,7 @@ class ProjectYaml(BaseModel):
     output_mode: OutputMode = OutputMode.latex
     rigor: Rigor = Rigor.strict
     schema_version: int = 1
-    workflow_version: str = "0.1.0"
+    workflow_version: str = "1.0.0-rc1"
     created_at: str = ""
     language: str = "zh"  # zh | en | bilingual
     time_budget_minutes: int | None = None  # competition mode only
